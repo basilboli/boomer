@@ -10,7 +10,7 @@ app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService ) {
                 longitude: result.coords.longitude + ( Math.random() - 0.5 ) / 100
             };
 
-            $scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ], 13 );
+            $scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ] );
 
             $scope.userMarker.setLatLng( L.latLng( $scope.model.user.position.latitude, $scope.model.user.position.longitude ) );
 

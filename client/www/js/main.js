@@ -43,7 +43,7 @@ app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService ) {
                 longitude: result.coords.longitude + ( Math.random() - 0.5 ) / 100
             };
 
-            $scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ], 13 );
+            $scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ] );
 
             $scope.userMarker.setLatLng( L.latLng( $scope.model.user.position.latitude, $scope.model.user.position.longitude ) );
 
@@ -73,9 +73,9 @@ app.directive( 'map', function() {
 
             L.mapbox.accessToken = 'pk.eyJ1IjoiZGFtbW1pZW4iLCJhIjoiY2lqeDRsc3NzMDAxd3Zua3AxNGg3N2g3MyJ9.VB6ZqQCOi9LMnR2ojeOHxw';
 
-            $scope.map = L.mapbox.map( container, 'mapbox.light');
+            $scope.map = L.mapbox.map( container, 'mapbox.light').setView( [ 50, 30 ], 13 );
 
-            $scope.userMarker = L.circle( [ 50.5, 30.5 ], 50, {
+            $scope.userMarker = L.circle( [ 50, 30 ], 50, {
                 stroke: false,
                 fillOpacity: 1,
                 fillColor: "#00AEEF"
