@@ -1,10 +1,9 @@
-package main
+package sse
 
 import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 )
 
 // Example SSE server in Golang.
@@ -112,22 +111,5 @@ func (broker *Broker) listen() {
 			}
 		}
 	}
-
-}
-
-func main() {
-
-	broker := NewServer()
-
-	go func() {
-		for {
-			time.Sleep(time.Second * 2)
-			eventString := fmt.Sprintf("the time is %v", time.Now())
-			log.Println("Receiving event")
-			broker.Notifier <- []byte(eventString)
-		}
-	}()
-
-	log.Fatal("HTTP server error: ", http.ListenAndServe("localhost:3000", broker))
 
 }

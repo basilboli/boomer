@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-master
+  labels:
+    app: mongo
+    role: master
+spec:
+  ports:
+  - port: 27017
+    targetPort: mongo-server
+  selector:
+    app: mongo
+    role: master
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mongo-master
+  labels:
+    app: mongo
+    role: master
+spec:
+  containers:
+  - image: mongo
+    name: mongo-master
+    ports:
+    - name: mongo-server
+      containerPort: 27017
+    volumeMounts:
+      - name: mongo-persistent-storage
+        mountPath: /data/db
+  volumes:
+    - name: mongo-persistent-storage
+      # This GCE PD must already exist.
+      gcePersistentDisk:
+        pdName: mongo-disk
+        fsType: ext4      
