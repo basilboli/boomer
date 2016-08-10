@@ -18,198 +18,122 @@ Currently active game. During alpha we have one active game at a time.
 
 Note : every endpoint is labeled as server sent events (SSE) or classic REST API (POST|GET).
 
-- TODO (POST) v1/game/new - generates new active game with n spots around the given coordinate
-
-- (GET) v1/game/active  - get active game with n spots and area
+- (GET) v1/game  - get active game showing game polygon
 
 ```
+
 {
-    "id" : "57a9ca4cc6de518244114c5a",
-    "active" : true,
-    "neighborhood" : {
-        "type" : "FeatureCollection",
-        "features" : [
-            {
-                "type" : "Feature",
-                "properties" : {},
-                "geometry" : {
-                    "type" : "Polygon",
-                    "coordinates" : [
-                        [
-                            [
-                                2.32705235481262,
-                                48.8757237949488
-                            ],
-                            [
-                                2.32705235481262,
-                                48.8796822204707
-                            ],
-                            [
-                                2.33098983764648,
-                                48.8796822204707
-                            ],
-                            [
-                                2.33098983764648,
-                                48.8757237949488
-                            ],
-                            [
-                                2.32705235481262,
-                                48.8757237949488
-                            ]
-                        ]
-                    ]
-                }
-            }
-        ]
-    },
-    "spots": [
-      {
-        "id": "57a9caf0c6de518244114c5b",
-        "type": "Feature",
-        "gameid": "57a9ca4cc6de518244114c5a",
-        "properties": {},
-        "geometry": {
-          "type": "Point",
-          "coordinates": [
-            2.32926249504089,
-            48.878038206549
+    "geometry": {
+       "coordinates": [
+          [
+             [
+                2.32705235481262,
+                48.8757237949488
+             ],
+             [
+                2.32705235481262,
+                48.8796822204707
+             ],
+             [
+                2.33098983764648,
+                48.8796822204707
+             ],
+             [
+                2.33098983764648,
+                48.8757237949488
+             ],
+             [
+                2.32705235481262,
+                48.8757237949488
+             ]
           ]
-        }
-      },
-      {
-        "id": "57a9caf0c6de518244114c5b",
-        "type": "Feature",
-        "gameid": "57a9ca4cc6de518244114c5a",
-        "checked": "false",
-        "properties": {},
-        "geometry": {
-          "type": "Point",
-          "coordinates": [
-            2.32926249504089,
-            48.878038206549
-          ]
-        }
-      }
-    ]
-}
+       ]
+    }
+ }
 ```
 
-- (POST) v1/player/new - generates new player
+- (POST) v1/player/locupdate - update player's location. If player doesn't exist it creates new one and returns his id.
 
 Request
 ```
 
-{"name" : "bob"}
+{"name":"mike","coordinates":[2.3277175426483154,48.8787826058128]
 
 ```
 
 Response
 ```
 
-{"id" : "123", "name" : "bob"}
+{"playerid":"57ab1dafbab09c24b9eefe12","name":"mike","coordinates":[2.3277175426483154,48.8787826058128]
 
 ```
 
-- (POST) v1/game/active/join - join active game
+- (Server Sent Events)  v1/events?playerid=57ab1dafbab09c24b9eefe12  - streaming  other players, all spots, checked spots by player and nearby spots within 50 meters
 
-Example : user 12343434 joins active game
+# PS1 : you can't see other player ids, this is a minimal foolproof, at least at the beginning
+# PS2 : to checkin the spot you need a spotid, the trick is that you see only the ids for nearby spots so you can checkin them. 
 
 Request
 ```
 
-{"id" : "12343434"}
+v1/events?playerid=XXXXXXXX
 
 ```
 
-Response
-```
-
-200 Ok
-
-```
-
-- (SSE)  v1/player/locupdate  - players, spots, checked spots and nearby spots
-
-Request
-```
-
-{"id" : "12354", "latitude" : 48.87171565817035, "longitude": 2.347297668457031}
-
-```
-
-Response
+Response (SSE)
 ```
 {
   "players": [
     {
-      "id": "57a9ca4cc6de51824411fdfd",
+      "playerid": "57ab00ddbab09c194aaa9b74",
+      "name": "mike",
       "coordinates": [
         2.32926249504089,
-        48.878038206549
-      ]
-    },
-    {
-      "id": "57a9ca4cc6de518sdfdsfs",
-      "coordinates": [
-        2.32926249505089,
         48.878038206549
       ]
     }
   ],
   "spots": [
     {
-      "id": "57a9caf0c6de518244114c5b",
-      "type": "Feature",
-      "gameid": "57a9ca4cc6de518244114c5a",
-      "properties": {},
-      "geometry": {
+      "checked": false,
+      "location": {
         "type": "Point",
         "coordinates": [
-          2.32926249504089,
-          48.878038206549
+          2.329262495040893,
+          48.87803820654905
         ]
       }
     },
     {
-      "id": "57a9caf0c6de518244114c5b",
-      "type": "Feature",
-      "gameid": "57a9ca4cc6de518244114c5a",
-      "checked": "false",
-      "properties": {},
-      "geometry": {
+      "checked": true,
+      "location": {
         "type": "Point",
         "coordinates": [
-          2.32926249504089,
-          48.878038206549
+          2.3304426670074463,
+          48.87672577896875
         ]
       }
-    }
-  ],
-  "checked_spots": [
+    },
     {
-      "id": "57a9caf0c6de518244114c5b",
-      "type": "Feature",
-      "gameid": "57a9ca4cc6de518244114c5a",
-      "properties": {},
-      "geometry": {
+      "checked": false,
+      "location": {
         "type": "Point",
         "coordinates": [
-          2.32926249504089,
-          48.878038206549
+          2.327781915664673,
+          48.87876496614797
         ]
       }
     }
   ],
-  "nearby_spots": [{
-      "id": "57a9caf0c6de518244114c5b",
-      "type": "Feature",
-      "gameid": "57a9ca4cc6de518244114c5a",
-      "properties": {},
-      "geometry": {
+  "nearby_spots": [
+    {
+      "spotid": "57a9caf0c6de518244114c5b",
+      "name": "",
+      "location": {
         "type": "Point",
         "coordinates": [
-          2.32926249504089,
-          48.878038206549
+          2.329262495040893,
+          48.87803820654905
         ]
       }
     }
@@ -217,13 +141,13 @@ Response
 }
 ```
 
-- (POST) v1/game/active/spots/checkin/:id      - checkin spot
+- (POST) v1/spots/checkin - checkin spot
 
-Example : user 123 checks in spot :id
+# Info : you can only checkin the spot uoi see nearby, otherwise spot ids are not visible.
 
 Request
 ```
-{"id" : "123"}
+{"playerid":"57ab1dafbab09c24b9eefe12", "spotid":"57ab448dc6de518244114c61"}
 
 ```
 Response
