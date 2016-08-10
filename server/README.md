@@ -110,15 +110,14 @@ Response
 
 ```
 
+- (POST) v1/game/active/join - join active game
 
-- (POST) v1/game/:id/join - player joins the game :id
-
-Example : user 123 joins game :id
+Example : user 12343434 joins active game
 
 Request
 ```
 
-{"id" : "123"}
+{"id" : "12343434"}
 
 ```
 
@@ -129,8 +128,16 @@ Response
 
 ```
 
+- (SSE)  v1/player/locupdate  - players, spots, checked spots and nearby spots
 
-- (SSE)  v1/game/active/players - connected players and their coordinates
+Request
+```
+
+{"id" : "12354", "latitude" : 48.87171565817035, "longitude": 2.347297668457031}
+
+```
+
+Response
 ```
 {
   "players": [
@@ -148,13 +155,7 @@ Response
         48.878038206549
       ]
     }
-  ]
-}
-```
-- (SSE)  v1/game/active/spots  - all, checked and nearby spots
-
-```
-{
+  ],
   "spots": [
     {
       "id": "57a9caf0c6de518244114c5b",
@@ -215,17 +216,16 @@ Response
   ]
 }
 ```
+
 - (POST) v1/game/active/spots/checkin/:id      - checkin spot
 
 Example : user 123 checks in spot :id
 
 Request
 ```
-
 {"id" : "123"}
 
 ```
-
 Response
 ```
 
