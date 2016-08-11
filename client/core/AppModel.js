@@ -3,7 +3,8 @@ app.factory( 'AppModel', function() {
     return {
 
         user: {
-            position: null
+            id: Math.random() + "",
+            position: {}
         },
 
         players: []

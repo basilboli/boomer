@@ -3,9 +3,11 @@ var app = angular.module( 'Application', [ 'ngRoute' ] );
 app.config( function( $routeProvider, $locationProvider ) {
 
     $routeProvider.when( '/', {
-        templateUrl: 'templates/login.html'
+        redirectTo: '/login'
+    } ).when( '/login', {
+        template: '<login></login>'
     } ).when( '/map', {
-        templateUrl: 'templates/map.html'
+        template: '<map></map>'
     } ).otherwise( {
         redirectTo: '/'
     } );
