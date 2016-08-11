@@ -20,9 +20,9 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
         MapService.sendPosition();
     };
 
-    MapService.start( () => {
+    // MapService.start( () => {
         $scope.updateUserGeolocation();
         $interval( $scope.updateUserGeolocation, 5000 );
-    } );
+    // } );
 
 } );

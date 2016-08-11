@@ -16,7 +16,7 @@ app.factory( 'PlayersLayer', function( $http, AppModel ) {
         },
 
         createMarker: function( player ) {
-            return L.circle( [ parseFloat( player.lat ), parseFloat( player.lng ) ], 25, this.options );
+            return L.circle( [ player.coordinates[ 1 ], player.coordinates[ 0 ] ], 25, this.options );
         },
 
         addPlayer: function( player ) {
