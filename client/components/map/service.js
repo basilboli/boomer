@@ -1,4 +1,4 @@
-app.factory( 'MapService', function( $http, AppModel ) {
+app.factory( 'MapService', function( $http, AppModel, PlayersLayer ) {
 
     return {
 
@@ -13,7 +13,7 @@ app.factory( 'MapService', function( $http, AppModel ) {
         sendPosition: function() {
             this.socket.send( JSON.stringify( {
                 "type": 0,
-                "name": "Damien",
+                "name": AppModel.user.id,
                 "lat": AppModel.user.position.latitude + "",
                 "lng": AppModel.user.position.longitude + ""
             } ) );
@@ -22,7 +22,9 @@ app.factory( 'MapService', function( $http, AppModel ) {
         onMessage: function( event ){
             var data = JSON.parse( event.data );
 
-            AppModel.players = data.players;
+            AppModel.players = data.players.filter( player => player.name !== AppModel.user.id );
+
+            PlayersLayer.update( AppModel.players );
         }
 
     };

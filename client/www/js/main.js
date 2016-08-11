@@ -3,9 +3,11 @@ var app = angular.module( 'Application', [ 'ngRoute' ] );
 app.config( function( $routeProvider, $locationProvider ) {
 
     $routeProvider.when( '/', {
-        templateUrl: 'templates/login.html'
+        redirectTo: '/login'
+    } ).when( '/login', {
+        template: '<login></login>'
     } ).when( '/map', {
-        templateUrl: 'templates/map.html'
+        template: '<map></map>'
     } ).otherwise( {
         redirectTo: '/'
     } );
@@ -22,7 +24,8 @@ app.factory( 'AppModel', function() {
     return {
 
         user: {
-            position: null
+            id: Math.random() + "",
+            position: {}
         },
 
         players: []
@@ -31,37 +34,62 @@ app.factory( 'AppModel', function() {
 
 } );
 
-app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService ) {
+app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
+
+    $scope.onConnect = () => {
+        $location.path( '/map' );
+    }
+
+} );
+
+app.directive( 'login', function() {
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'templates/login/template.html'
+    }
+
+} );
+
+app.factory( 'LoginService', function( $http, AppModel ) {
+
+    return {
+
+    };
+
+} );
+
+app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, UserMarker ) {
 
     $scope.model = AppModel;
 
     $scope.updateUserGeolocation = function(  ){
-        navigator.geolocation.getCurrentPosition( ( result ) => {
+        navigator.geolocation.getCurrentPosition(
+            $scope.onGetUserLocation.bind( this ),
+            err => console.log( err )
+        );
+    };
 
-            $scope.model.user.position = {
-                latitude: result.coords.latitude + ( Math.random() - 0.5 ) / 100,
-                longitude: result.coords.longitude + ( Math.random() - 0.5 ) / 100
-            };
+    $scope.onGetUserLocation = ( result ) => {
+        $scope.model.user.position.latitude = result.coords.latitude + ( Math.random() - 0.5 ) / 100;
+        $scope.model.user.position.longitude = result.coords.longitude + ( Math.random() - 0.5 ) / 100;
 
-            $scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ] );
+        UserMarker.update( $scope.model.user );
 
-            $scope.userMarker.setLatLng( L.latLng( $scope.model.user.position.latitude, $scope.model.user.position.longitude ) );
+        $scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ] );
 
-            MapService.sendPosition();
-
-            $timeout( $scope.updateUserGeolocation.bind( this ), 5000 );
-        }, ( err ) => {
-            $timeout( $scope.updateUserGeolocation.bind( this ), 5000 );
-        } );
+        MapService.sendPosition();
     };
 
     MapService.start( () => {
         $scope.updateUserGeolocation();
+        $interval( $scope.updateUserGeolocation, 5000 );
     } );
 
 } );
 
-app.directive( 'map', function() {
+app.directive( 'map', function ( $compile, PlayersLayer, UserMarker ) {
 
     return {
         restrict: 'E',
@@ -69,37 +97,55 @@ app.directive( 'map', function() {
         templateUrl: 'templates/map/template.html',
         link: ( $scope, elements ) => {
 
-            let container = elements[ 0 ];
-
             L.mapbox.accessToken = 'pk.eyJ1IjoiZGFtbW1pZW4iLCJhIjoiY2lqeDRsc3NzMDAxd3Zua3AxNGg3N2g3MyJ9.VB6ZqQCOi9LMnR2ojeOHxw';
 
-            $scope.map = L.mapbox.map( container, 'mapbox.light').setView( [ 50, 30 ], 13 );
+            $scope.map = L.mapbox.map( elements[ 0 ], 'mapbox.light').setView( [ 50, 30 ], 13 );
 
-            $scope.userMarker = L.circle( [ 50, 30 ], 50, {
-                stroke: false,
-                fillOpacity: 1,
-                fillColor: "#00AEEF"
-            } ).addTo( $scope.map );
+            PlayersLayer.init( $scope.map );
 
-            $scope.playersLayer = L.layerGroup().addTo( $scope.map );
-
-            $scope.$watch( () => $scope.model.players, () => {
-                $scope.playersLayer.clearLayers();
-                $scope.model.players.forEach( player => {
-                    var marker = L.circle( [ parseFloat( player.lat ), parseFloat( player.lng ) ], 50, {
-                        stroke: false,
-                        fillOpacity: 1,
-                        fillColor: "#CC0000"
-                    } );
-                    marker.addTo( $scope.playersLayer );
-                } );
-            } );
+            UserMarker.init( $scope.map );
         }
     };
 
 } );
 
-app.factory( 'MapService', function( $http, AppModel ) {
+app.factory( 'PlayersLayer', function( $http, AppModel ) {
+
+    return {
+        map: null,
+        layer: null,
+        model: AppModel,
+        options: {
+            stroke: false,
+            fillOpacity: 1,
+            fillColor: "#CC0000"
+        },
+
+        init: function( map ) {
+            this.map = map;
+            this.layer = L.layerGroup().addTo( this.map );
+        },
+
+        createMarker: function( player ) {
+            return L.circle( [ parseFloat( player.lat ), parseFloat( player.lng ) ], 25, this.options );
+        },
+
+        addPlayer: function( player ) {
+            var marker = this.createMarker( player );
+            marker.addTo( this.layer );
+        },
+
+        update: function( players ) {
+            if ( this.map ) {
+                this.layer.clearLayers();
+                players.forEach( player => this.addPlayer( player ) );
+            }
+        }
+    }
+
+} );
+
+app.factory( 'MapService', function( $http, AppModel, PlayersLayer ) {
 
     return {
 
@@ -114,7 +160,7 @@ app.factory( 'MapService', function( $http, AppModel ) {
         sendPosition: function() {
             this.socket.send( JSON.stringify( {
                 "type": 0,
-                "name": "Damien",
+                "name": AppModel.user.id,
                 "lat": AppModel.user.position.latitude + "",
                 "lng": AppModel.user.position.longitude + ""
             } ) );
@@ -123,9 +169,49 @@ app.factory( 'MapService', function( $http, AppModel ) {
         onMessage: function( event ){
             var data = JSON.parse( event.data );
 
-            AppModel.players = data.players;
+            AppModel.players = data.players.filter( player => player.name !== AppModel.user.id );
+
+            PlayersLayer.update( AppModel.players );
         }
 
     };
+
+} );
+
+app.factory( 'UserMarker', function( $http, AppModel ) {
+
+    return {
+        map: null,
+        marker: null,
+        options: {
+            stroke: false,
+            fillOpacity: 1,
+            fillColor: "#00AEEF"
+        },
+
+        init: function( map ) {
+            this.map = map;
+        },
+
+        setPosition: function( user ) {
+            this.marker.setLatLng(
+                L.latLng(
+                    user.position.latitude,
+                    user.position.longitude
+                )
+            );
+        },
+
+        createMarker: function( position ) {
+            this.marker = L.circle( [ position.latitude, position.longitude ], 25, this.options ).addTo( this.map );
+        },
+
+        update: function( user ) {
+            if ( this.map ) {
+                if ( this.marker ) this.setPosition( user.position );
+                else this.createMarker( user );
+            }
+        }
+    }
 
 } );
