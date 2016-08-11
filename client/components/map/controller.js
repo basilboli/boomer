@@ -10,8 +10,8 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
     };
 
     $scope.onGetUserLocation = ( result ) => {
-        $scope.model.user.position.latitude = result.coords.latitude + ( Math.random() - 0.5 ) / 100;
-        $scope.model.user.position.longitude = result.coords.longitude + ( Math.random() - 0.5 ) / 100;
+        $scope.model.user.position.latitude = result.coords.latitude + ( Math.random() - 0.5 ) / 500;
+        $scope.model.user.position.longitude = result.coords.longitude + ( Math.random() - 0.5 ) / 500;
 
         UserMarker.update( $scope.model.user );
 

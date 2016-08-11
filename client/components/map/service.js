@@ -1,4 +1,4 @@
-app.factory( 'MapService', function( $http, AppModel, PlayersLayer ) {
+app.factory( 'MapService', function( $http, AppModel, PlayersLayer, SpotsLayer ) {
 
     return {
 
@@ -50,7 +50,9 @@ app.factory( 'MapService', function( $http, AppModel, PlayersLayer ) {
         onMessage: function( event ) {
             var data = JSON.parse( event.data );
             AppModel.players = data.players;
+            AppModel.spots = data.spots;
             PlayersLayer.update( AppModel.players );
+            SpotsLayer.update( AppModel.spots );
         }
 
     };

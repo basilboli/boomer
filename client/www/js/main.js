@@ -86,8 +86,8 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
     };
 
     $scope.onGetUserLocation = ( result ) => {
-        $scope.model.user.position.latitude = result.coords.latitude + ( Math.random() - 0.5 ) / 100;
-        $scope.model.user.position.longitude = result.coords.longitude + ( Math.random() - 0.5 ) / 100;
+        $scope.model.user.position.latitude = result.coords.latitude + ( Math.random() - 0.5 ) / 500;
+        $scope.model.user.position.longitude = result.coords.longitude + ( Math.random() - 0.5 ) / 500;
 
         UserMarker.update( $scope.model.user );
 
@@ -103,7 +103,7 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
 
 } );
 
-app.directive( 'map', function( $compile, PlayersLayer, UserMarker, MapService, GamePolygon ) {
+app.directive( 'map', function( $compile, PlayersLayer, UserMarker, MapService, GamePolygon, SpotsLayer ) {
 
     return {
         restrict: 'E',
@@ -114,6 +114,8 @@ app.directive( 'map', function( $compile, PlayersLayer, UserMarker, MapService, 
             L.mapbox.accessToken = 'pk.eyJ1IjoiZGFtbW1pZW4iLCJhIjoiY2lqeDRsc3NzMDAxd3Zua3AxNGg3N2g3MyJ9.VB6ZqQCOi9LMnR2ojeOHxw';
 
             $scope.map = L.mapbox.map( elements[ 0 ], 'mapbox.light' ).setView( [ 50, 30 ], 13 );
+
+            SpotsLayer.init( $scope.map );
 
             PlayersLayer.init( $scope.map );
 
@@ -153,12 +155,11 @@ app.factory( 'GamePolygon', function( $http, AppModel ) {
 
 } );
 
-app.factory( 'PlayersLayer', function( $http, AppModel ) {
+app.factory( 'PlayersLayer', function( $http ) {
 
     return {
         map: null,
         layer: null,
-        model: AppModel,
         options: {
             stroke: false,
             fillOpacity: 1,
@@ -189,7 +190,7 @@ app.factory( 'PlayersLayer', function( $http, AppModel ) {
 
 } );
 
-app.factory( 'MapService', function( $http, AppModel, PlayersLayer ) {
+app.factory( 'MapService', function( $http, AppModel, PlayersLayer, SpotsLayer ) {
 
     return {
 
@@ -241,10 +242,48 @@ app.factory( 'MapService', function( $http, AppModel, PlayersLayer ) {
         onMessage: function( event ) {
             var data = JSON.parse( event.data );
             AppModel.players = data.players;
+            AppModel.spots = data.spots;
             PlayersLayer.update( AppModel.players );
+            SpotsLayer.update( AppModel.spots );
         }
 
     };
+
+} );
+
+app.factory( 'SpotsLayer', function( $http ) {
+
+    return {
+        map: null,
+        layer: null,
+        options: {
+            stroke: false,
+            fillOpacity: 1,
+            fillColor: "#CC0000"
+        },
+
+        init: function( map ) {
+            this.map = map;
+            this.layer = L.layerGroup().addTo( this.map );
+        },
+
+        createMarker: function( spot ) {
+            var coordinates = spot.location.coordinates;
+            return L.marker( [ coordinates[ 1 ], coordinates[ 0 ] ] );
+        },
+
+        addSpot: function( spot ) {
+            var marker = this.createMarker( spot );
+            marker.addTo( this.layer );
+        },
+
+        update: function( spots ) {
+            if ( this.map ) {
+                this.layer.clearLayers();
+                spots.forEach( spot => this.addSpot( spot ) );
+            }
+        }
+    }
 
 } );
 
