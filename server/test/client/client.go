@@ -11,9 +11,10 @@ import (
 
 var origin = "http://localhost/"
 
-var url = "ws://boomer.paris:3000/entry"
+// var url = "ws://boomer.paris:3000/entry"
 
-// var url = "ws://104.155.123.156:3000/entry"
+var url = "ws://104.155.123.156:3000/entry"
+
 // var url = "ws://localhost:3000/entry"
 
 func main() {
@@ -80,9 +81,10 @@ func main() {
 	n := rand.Intn(len(names))
 
 	for {
-		lat := 48.870357399999996 + rand.Float64()
-		lng := 2.3332756999999997
-		str := fmt.Sprintf("{\"type\": 0,\"name\": \"%s\", \"lat\":\"%g\", \"lng\":\"%g\"}", names[n], rand.Float64(), rand.Float64())
+		// lat := 48.870357399999996
+		// lng := 2.3332756999999997
+		fmt.Println("%v", n)
+		str := fmt.Sprintf("{\"type\": 0,\"name\": \"%s\", \"lat\":\"%g\", \"lng\":\"%g\"}", names[1], rand.Float64(), rand.Float64())
 		message := []byte(str)
 		_, err = ws.Write(message)
 		if err != nil {

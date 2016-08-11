@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"bitbucket.org/basilboli/boomer/server/ws"
+	"bitbucket.org/basilboli/boomer/server/websockets/ws"
 )
 
 func main() {
