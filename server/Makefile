@@ -1,12 +1,12 @@
 build:
 	godep save
-	docker build -t gcr.io/boomer-1470064436690/boomer:v0.3 .
+	docker build -t gcr.io/boomer-1470064436690/boomer:v0.9 .
 
 run: build
-	docker run --name boomer -p 3000:3000 gcr.io/boomer-1470064436690/boomer:v0.3
+	docker run --name boomer -p 3000:3000 gcr.io/boomer-1470064436690/boomer:v0.9
 
 push: build
-	gcloud docker push gcr.io/boomer-1470064436690/boomer:v0.3
+	gcloud docker push gcr.io/boomer-1470064436690/boomer:v0.9
 
 deploy: push
 	kubectl create -f spec.yaml
