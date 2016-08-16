@@ -241,17 +241,44 @@ app.factory( 'MapService', function( $http, AppModel, PlayersLayer, SpotsLayer )
 
         onMessage: function( event ) {
             var data = JSON.parse( event.data );
-            AppModel.players = data.players;
-            AppModel.spots = data.spots;
-            PlayersLayer.update( AppModel.players );
-            SpotsLayer.update( AppModel.spots );
+
+            if( data.players ) {
+                AppModel.players = data.players;
+                PlayersLayer.update( AppModel.players );
+            }
+
+            if( data.spots ) {
+                AppModel.spots = data.spots;
+                SpotsLayer.update( AppModel.spots );
+            }
+
         }
 
     };
 
 } );
 
-app.factory( 'SpotsLayer', function( $http ) {
+app.directive( 'spotMarker', function() {
+
+    return {
+        restrict: 'E',
+        link: ( $scope ) => {
+            $scope.marker = L.marker( [
+                $scope.spot.location.coordinates[ 1 ],
+                $scope.spot.location.coordinates[ 0 ]
+            ] );
+
+            $scope.marker.on( 'click', function( e ) {
+                console.log( 'ok' );
+            } );
+
+            $scope.marker.addTo( $scope.layer );
+        }
+    };
+
+} );
+
+app.factory( 'SpotsLayer', function( $http, $compile ) {
 
     return {
         map: null,
@@ -267,14 +294,12 @@ app.factory( 'SpotsLayer', function( $http ) {
             this.layer = L.layerGroup().addTo( this.map );
         },
 
-        createMarker: function( spot ) {
-            var coordinates = spot.location.coordinates;
-            return L.marker( [ coordinates[ 1 ], coordinates[ 0 ] ] );
-        },
-
         addSpot: function( spot ) {
-            var marker = this.createMarker( spot );
-            marker.addTo( this.layer );
+            $compile('<spot-marker></spot-marker>')( {
+                foo: "bar",
+                layer: this.layer,
+                spot: spot
+            });
         },
 
         update: function( spots ) {

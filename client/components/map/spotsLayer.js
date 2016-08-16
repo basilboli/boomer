@@ -1,4 +1,4 @@
-app.factory( 'SpotsLayer', function( $http ) {
+app.factory( 'SpotsLayer', function( $http, $compile ) {
 
     return {
         map: null,
@@ -14,14 +14,12 @@ app.factory( 'SpotsLayer', function( $http ) {
             this.layer = L.layerGroup().addTo( this.map );
         },
 
-        createMarker: function( spot ) {
-            var coordinates = spot.location.coordinates;
-            return L.marker( [ coordinates[ 1 ], coordinates[ 0 ] ] );
-        },
-
         addSpot: function( spot ) {
-            var marker = this.createMarker( spot );
-            marker.addTo( this.layer );
+            $compile('<spot-marker></spot-marker>')( {
+                foo: "bar",
+                layer: this.layer,
+                spot: spot
+            });
         },
 
         update: function( spots ) {
