@@ -49,10 +49,17 @@ app.factory( 'MapService', function( $http, AppModel, PlayersLayer, SpotsLayer )
 
         onMessage: function( event ) {
             var data = JSON.parse( event.data );
-            AppModel.players = data.players;
-            AppModel.spots = data.spots;
-            PlayersLayer.update( AppModel.players );
-            SpotsLayer.update( AppModel.spots );
+
+            if( data.players ) {
+                AppModel.players = data.players;
+                PlayersLayer.update( AppModel.players );
+            }
+
+            if( data.spots ) {
+                AppModel.spots = data.spots;
+                SpotsLayer.update( AppModel.spots );
+            }
+
         }
 
     };
