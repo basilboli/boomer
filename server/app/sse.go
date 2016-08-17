@@ -153,6 +153,17 @@ func (broker *Broker) listen() {
 			// Send event to all connected clients
 			for client, _ := range broker.clients {
 				fmt.Println("Received event: " + string(event))
+
+				// TODO 1
+				// sent player updates
+				// eventString := fmt.Sprintf("event: playerUpdates\ndata: %s\n\n", GetPlayerUpdates(GetConnectedPlayers())
+				// client.MessageCh <- []byte(eventString)
+
+				// TODO 2
+				// sent spot updates
+				// eventString = GetSpotUpdates(client.Id)
+				// client.MessageCh <- []byte(eventString)
+
 				eventString := GetLocUpdateResponse(client.Id, broker.GetConnectedPlayers())
 				client.MessageCh <- []byte(eventString)
 				// client.MessageCh <- event

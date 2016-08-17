@@ -7,7 +7,7 @@ deploy:
 
 .PHONY: run
 run:
-	docker run -d -p 27017:27017 --name mongo-master mongo
+	docker run -d -p 6379:6379 --name redis redis	
 
 .PHONY: delete
 delete:

@@ -4,7 +4,8 @@ FROM golang
 ADD . /go/src/bitbucket.org/basilboli/boomer/server
 
 # manage dependencies
-RUN go install bitbucket.org/basilboli/boomer/server
+# RUN go install -ldflags "-X main.BuildStamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'`-githash:`git rev-parse HEAD`" bitbucket.org/basilboli/boomer/server
+RUN go install -ldflags "-X main.BuildStamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'`" bitbucket.org/basilboli/boomer/server
 
 WORKDIR /go/src/bitbucket.org/basilboli/boomer/server
 

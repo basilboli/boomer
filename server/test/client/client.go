@@ -12,10 +12,8 @@ import (
 var origin = "http://localhost/"
 
 // var url = "ws://boomer.paris:3000/entry"
-
-var url = "ws://104.155.123.156:3000/entry"
-
-// var url = "ws://localhost:3000/entry"
+// var url = "ws://boomer.im:3000/entry"
+var url = "ws://localhost:3000/entry"
 
 func main() {
 	fmt.Println("Connecting to : " + url)
@@ -81,8 +79,8 @@ func main() {
 	n := rand.Intn(len(names))
 
 	for {
-		// lat := 48.870357399999996
-		// lng := 2.3332756999999997
+		// lng := 2.327009439468384
+		// lat := 48.879287097593966
 		fmt.Println("%v", n)
 		str := fmt.Sprintf("{\"type\": 0,\"name\": \"%s\", \"lat\":\"%g\", \"lng\":\"%g\"}", names[1], rand.Float64(), rand.Float64())
 		message := []byte(str)

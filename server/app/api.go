@@ -35,9 +35,11 @@ type Polygon struct {
 }
 
 type Spot struct {
-	ID       bson.ObjectId `bson:"_id,omitempty" json:"spotid"`
+	ID       bson.ObjectId `bson:"_id,omitempty" json:"spotid,omitempty"`
 	GameId   bson.ObjectId `bson:"gameid,omitempty" json:"-"`
 	Name     string        `bson:"name" json:"name"`
+	Checked  bool          `bson:"checked" json:"checked,omitempty"`
+	NearBy   bool          `bson:"nearby" json:"nearby,omitempty"`
 	Location Point         `bson:"location" json:"location"`
 }
 
@@ -49,7 +51,7 @@ type Game struct {
 }
 
 type Player struct {
-	ID          bson.ObjectId `bson:"_id,omitempty" json:"playerid"`
+	ID          bson.ObjectId `bson:"_id" json:"playerid,omitempty"`
 	Name        string        `bson:"name" json:"name"`
 	Coordinates Coordinate    `json:"coordinates" bson:"coordinates"`
 }
@@ -115,12 +117,13 @@ func GetLocUpdateResponse(id string, otherPlayers []string) string {
 	var thisPlayer Player
 	var playersMin []PlayerMin // to hold the players
 	for _, p := range players {
+		playerMin := PlayerMin{Name: p.Name, Coordinates: p.Coordinates}
 		if p.ID.Hex() == id {
 			fmt.Println("This player found!")
 			thisPlayer = p
+		} else {
+			playersMin = append(playersMin, playerMin)
 		}
-		playerMin := PlayerMin{Name: p.Name, Coordinates: p.Coordinates}
-		playersMin = append(playersMin, playerMin)
 	}
 
 	var spots []Spot // to hold all the spots
@@ -151,7 +154,9 @@ func GetLocUpdateResponse(id string, otherPlayers []string) string {
 	var nearbySpots []Spot // to hold all the spots
 
 	err = c_spots.Find(bson.M{"location": bson.M{"$nearSphere": bson.M{"$geometry": bson.M{
-		"type":        "Point",
+
+		"type": "Point",
+
 		"coordinates": thisPlayer.Coordinates,
 	},
 		"$maxDistance": MAX_DISTANCE,

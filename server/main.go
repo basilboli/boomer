@@ -2,17 +2,28 @@ package main
 
 import (
 	"bitbucket.org/basilboli/boomer/server/app"
+	"io"
 	"log"
 	"net/http"
 	"time"
 )
 
+var BuildStamp = "No BuildStamp Provided"
+
 type HandlerFunc func(http.ResponseWriter, *http.Request)
+
+func init() {
+	log.Printf("App BuildStamp: %s\n", BuildStamp)
+}
 
 func main() {
 
 	// server sent events broker
 	broker := app.NewServer()
+
+	http.HandleFunc("/version", func(rw http.ResponseWriter, req *http.Request) {
+		io.WriteString(rw, BuildStamp)
+	})
 
 	http.Handle("/hello", corsHandler(app.HelloServer))
 	http.Handle("/game", corsHandler(app.GetActiveGame))
