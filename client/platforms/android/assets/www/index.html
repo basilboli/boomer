@@ -3,24 +3,22 @@
 <head>
     <title></title>
     <link href="style/main.css" rel="stylesheet"/>
-    <!-- <link href="libs/leaflet.css" rel="stylesheet"/> -->
     <link href="libs/mapbox.css" rel="stylesheet"/>
-    <!-- <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet'/> -->
 </head>
-<body ng-app="Application" ng-view>
-    Hello world
+<body ng-app="Application" ng-controller="appCtrl">
 
+    <loader ng-if="model.loader.show"></loader>
+    <main ng-view></main>
+
+    <!-- Cordova -->
     <script type="text/javascript" src="cordova.js"></script>
 
     <!-- Libraries -->
     <script src="libs/angular.min.js"></script>
     <script src="libs/angular-route.js"></script>
-    <!-- <script src="libs/leaflet.js"></script> -->
     <script src="libs/mapbox.js"></script>
-    <!-- <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script> -->
 
-    <!-- Core app -->
+    <!-- Application -->
     <script type="text/javascript" src="js/main.js"></script>
-
 </body>
 </html>
