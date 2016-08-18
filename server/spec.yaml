@@ -25,7 +25,7 @@ metadata:
     role: api
 spec:
     containers:
-    - image: gcr.io/boomer-1470064436690/boomer:v0.01
+    - image: gcr.io/boomer-1470064436690/boomer:1.0
       name: boomer-server
       ports:
       - name: boomer-server

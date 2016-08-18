@@ -9,7 +9,16 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
+
+var BuildStamp = "No BuildStamp Provided"
+
+type HandlerFunc func(http.ResponseWriter, *http.Request)
+
+func init() {
+	log.Printf("App BuildStamp: %s\n", BuildStamp)
+}
 
 const (
 	MAX_DISTANCE = 50 // in meters
@@ -37,10 +46,10 @@ type Polygon struct {
 type Spot struct {
 	ID       bson.ObjectId `bson:"_id,omitempty" json:"spotid,omitempty"`
 	GameId   bson.ObjectId `bson:"gameid,omitempty" json:"-"`
-	Name     string        `bson:"name" json:"name"`
-	Checked  bool          `bson:"checked" json:"checked,omitempty"`
-	NearBy   bool          `bson:"nearby" json:"nearby,omitempty"`
+	Name     string        `bson:"name" json:"name,omitempty"`
+	Checked  bool          `bson:"checked" json:"checked"`
 	Location Point         `bson:"location" json:"location"`
+	NearBy   bool          `bson:"nearby" json:"nearby"`
 }
 
 type Game struct {
@@ -48,17 +57,13 @@ type Game struct {
 	Name     string        `bson:"name" json:"-"`
 	Active   bool          `bson:"active" json:"-"`
 	Geometry Polygon       `bson:"geometry" json:"geometry"`
+	Spots    []Spot        `bson:"spots" json:"spots,omitempty"`
 }
 
 type Player struct {
 	ID          bson.ObjectId `bson:"_id" json:"playerid,omitempty"`
 	Name        string        `bson:"name" json:"name"`
 	Coordinates Coordinate    `json:"coordinates" bson:"coordinates"`
-}
-
-type PlayerMin struct {
-	Name        string     `bson:"name" json:"name"`
-	Coordinates Coordinate `json:"coordinates" bson:"coordinates"`
 }
 
 type Checkin struct {
@@ -68,15 +73,9 @@ type Checkin struct {
 }
 
 type LocUpdateResponse struct {
-	Players     []PlayerMin `json:"players"`
-	Spots       []SpotMin   `json:"spots"`
-	NearBySpots []Spot      `json:"nearby_spots"`
-}
-
-// minimal view of the spot show to the user
-type SpotMin struct {
-	Checked  bool  `bson:"checked" json:"checked"`
-	Location Point `bson:"location" json:"location"`
+	You     Player   `json:"you"`
+	Players []Player `json:"players"`
+	Spots   []Spot   `json:"spots"`
 }
 
 var c_games *mgo.Collection
@@ -105,52 +104,33 @@ func GetLocUpdateResponse(id string, otherPlayers []string) string {
 		oids[i] = bson.ObjectIdHex(otherPlayers[i])
 	}
 
-	query := bson.M{"_id": bson.M{"$in": oids}}
+	// DB REQUEST : this player info
+	var thisPlayer Player
+	err := c_players.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&thisPlayer)
 
-	var players []Player // to hold the players
-	err := c_players.Find(query).All(&players)
 	if err != nil {
 		log.Printf("JSON marshaling failed: %s", err)
 		return ""
 	}
 
-	var thisPlayer Player
-	var playersMin []PlayerMin // to hold the players
-	for _, p := range players {
-		playerMin := PlayerMin{Name: p.Name, Coordinates: p.Coordinates}
-		if p.ID.Hex() == id {
-			fmt.Println("This player found!")
-			thisPlayer = p
-		} else {
-			playersMin = append(playersMin, playerMin)
-		}
-	}
+	// DB REQUEST : other players info
+	var players []Player
+	err = c_players.Pipe([]bson.M{{"$match": bson.M{"_id": bson.M{"$ne": bson.ObjectIdHex(id), "$in": oids}}},
+		{"$project": bson.M{"name": 1, "coordinates": 1, "_id": 0}}}).All(&players)
 
-	var spots []Spot // to hold all the spots
+	// DB REQUEST : all spots for the given active game
+	var game Game // to hold the active game
 
-	err = c_spots.Find(bson.M{}).All(&spots)
+	// spots for the active game
+	err = c_games.Pipe([]bson.M{{"$match": bson.M{"active": true}},
+		{"$lookup": bson.M{"from": "spots", "localField": "_id", "foreignField": "gameid", "as": "spots"}}}).One(&game)
 	if err != nil {
 		log.Printf("spots JSON marshaling failed: %s", err)
 		return ""
 	}
+	// -- end
 
-	// info about checked spots for given player
-	var checkins []Checkin // to hold the checked spots
-	err = c_checkins.Find(bson.M{"playerid": bson.ObjectIdHex(id)}).All(&checkins)
-	if err != nil {
-		log.Printf("checkins JSON marshaling failed: %s", err)
-		return ""
-	}
-
-	var checkedSpots []SpotMin // to hold all the spots
-	for _, s := range spots {
-
-		spot := SpotMin{Checked: contains(checkins, s), Location: s.Location}
-		checkedSpots = append(checkedSpots, spot)
-	}
-
-	// nearby spots
-
+	// nearby spots for the user
 	var nearbySpots []Spot // to hold all the spots
 
 	err = c_spots.Find(bson.M{"location": bson.M{"$nearSphere": bson.M{"$geometry": bson.M{
@@ -167,10 +147,38 @@ func GetLocUpdateResponse(id string, otherPlayers []string) string {
 		log.Printf("spots JSON marshaling failed: %s", err)
 		return ""
 	}
+	// -- end
 
-	locUpdateReponse := LocUpdateResponse{Spots: checkedSpots, Players: playersMin, NearBySpots: nearbySpots}
+	// info about checked spots for given player
+	var checkins []Checkin // to hold the checked spots
+	err = c_checkins.Find(bson.M{"playerid": bson.ObjectIdHex(id)}).All(&checkins)
+	if err != nil {
+		log.Printf("checkins JSON marshaling failed: %s", err)
+		return ""
+	}
+	// -- end
 
-	data, err := json.Marshal(locUpdateReponse)
+	checkedSpotsDict := fromCheckinsToDict(checkins)
+	nearbySpotsDict := fromSpotsToDict(nearbySpots)
+
+	var spots []Spot // to hold all the spots
+	for _, s := range game.Spots {
+
+		_, checked := checkedSpotsDict[s.ID.Hex()]
+		_, nearby := nearbySpotsDict[s.ID.Hex()]
+		var spot Spot
+		if nearby {
+			spot = Spot{ID: s.ID, Location: s.Location, Checked: checked, NearBy: nearby}
+		} else {
+			spot = Spot{Location: s.Location, Checked: checked, NearBy: nearby}
+		}
+
+		spots = append(spots, spot)
+	}
+
+	locUpdateResponse := LocUpdateResponse{You: thisPlayer, Players: players, Spots: spots}
+
+	data, err := json.Marshal(locUpdateResponse)
 	if err != nil {
 		log.Printf("JSON marshaling failed: %s", err)
 		return ""
@@ -291,12 +299,57 @@ func CheckinSpot(rw http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(rw, "%s\n", "Ok")
 }
 
-func contains(s []Checkin, e Spot) bool {
+func fromCheckinsToDict(s []Checkin) map[string]bool {
+	res := make(map[string]bool, len(s))
 	for _, a := range s {
-		if a.SpotId.Hex() == e.ID.Hex() {
-			fmt.Println("Woohoo")
-			return true
-		}
+		res[a.SpotId.Hex()] = true
 	}
-	return false
+	return res
+}
+
+func fromSpotsToDict(s []Spot) map[string]bool {
+	res := make(map[string]bool, len(s))
+	for _, a := range s {
+		res[a.ID.Hex()] = true
+	}
+	return res
+}
+
+func corsHandler(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "origin, content-type, accept")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+
+		http.HandlerFunc(f).ServeHTTP(w, r)
+
+	}
+}
+
+func NewApiServer() {
+	// new server sents events server
+	broker := NewSSEServer()
+
+	http.Handle("/hello", corsHandler(HelloServer))
+	http.HandleFunc("/version", func(rw http.ResponseWriter, req *http.Request) {
+		io.WriteString(rw, BuildStamp)
+	})
+	http.Handle("/game", corsHandler(GetActiveGame))
+	http.Handle("/player/locupdate", corsHandler(LocUpdate))
+	http.Handle("/spot/checkin", corsHandler(CheckinSpot))
+	http.Handle("/events", broker)
+
+	go func() {
+		for {
+			time.Sleep(time.Second * 2)
+			// eventString := fmt.Sprintf("the time is %v", time.Now())
+			// eventString := GetLocUpdateResponse(broker.GetConnectedPlayers())
+			log.Println("Sending notification!")
+			broker.Notifier <- []byte("notify")
+
+		}
+	}()
+
+	log.Print("Open URL http://localhost:3000/ in your browser.")
+	go log.Fatal("HTTP server error: ", http.ListenAndServe(":3000", nil))
 }

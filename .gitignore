@@ -2,3 +2,4 @@
 client/platforms/android/CordovaLib/build/
 client/platforms/android/build/
 client/platforms/android/.gradle/
+platforms/android/CordovaLib/build
