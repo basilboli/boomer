@@ -4,8 +4,10 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
         map: null,
         marker: null,
         options: {
-            stroke: false,
-            fillOpacity: 1,
+            stroke: true,
+            fillOpacity: 0.4,
+            weight: 2,
+            color: "#00AEEF",
             fillColor: "#00AEEF"
         },
 
@@ -24,7 +26,7 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
 
         createMarker: function( position ) {
             console.log( [ position.latitude, position.longitude ] );
-            this.marker = L.circle( [ position.latitude, position.longitude ], 25, this.options ).addTo( this.map );
+            this.marker = L.circle( [ position.latitude, position.longitude ], 50, this.options ).addTo( this.map );
         },
 
         update: function( user ) {

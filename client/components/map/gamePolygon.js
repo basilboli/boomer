@@ -16,7 +16,7 @@ app.factory( 'GamePolygon', function( $http, AppModel ) {
 
         createPolygon: function( coordinates ) {
             coordinates.pop();
-            coordinates = coordinates.map( point => {
+            coordinates = coordinates.map( function( point ) {
                 point.push( point.shift() );
                 return point;
             } );

@@ -24,8 +24,12 @@ app.factory( 'MapService', function( $http, AppModel, PlayersLayer, SpotsLayer )
 
         getGame: function() {
             return $http.get( 'http://boomer.im:3000/game' ).then(
-                resp => AppModel.game.polygon.coordinates = resp.data.geometry.coordinates[ 0 ],
-                err => console.log( err )
+                function( resp ) {
+                    AppModel.game.polygon.coordinates = resp.data.geometry.coordinates[ 0 ]
+                },
+                function( err ) {
+                    console.log( err );
+                }
             );
         },
 
@@ -50,16 +54,29 @@ app.factory( 'MapService', function( $http, AppModel, PlayersLayer, SpotsLayer )
         onMessage: function( event ) {
             var data = JSON.parse( event.data );
 
-            if( data.players ) {
+            if ( data.players ) {
                 AppModel.players = data.players;
                 PlayersLayer.update( AppModel.players );
             }
 
-            if( data.spots ) {
+            if ( data.spots ) {
                 AppModel.spots = data.spots;
                 SpotsLayer.update( AppModel.spots );
             }
+        },
 
+        checkSpot: function( spot ) {
+            $http.post( 'http://boomer.im:3000/spot/checkin', {
+                "playerid": AppModel.user.playerid,
+                "spotid": spot.spotid
+            } ).then(
+                function( resp ) {
+                    alert( 'Spot checked' )
+                },
+                function( err ) {
+                    console.log( err )
+                }
+            );
         }
 
     };

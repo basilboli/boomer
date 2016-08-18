@@ -4,7 +4,7 @@ app.directive( 'map', function( $compile, PlayersLayer, UserMarker, MapService, 
         restrict: 'E',
         replace: true,
         templateUrl: 'templates/map/template.html',
-        link: ( $scope, elements ) => {
+        link: function( $scope, elements ) {
 
             L.mapbox.accessToken = 'pk.eyJ1IjoiZGFtbW1pZW4iLCJhIjoiY2lqeDRsc3NzMDAxd3Zua3AxNGg3N2g3MyJ9.VB6ZqQCOi9LMnR2ojeOHxw';
 
@@ -16,7 +16,9 @@ app.directive( 'map', function( $compile, PlayersLayer, UserMarker, MapService, 
 
             UserMarker.init( $scope.map );
 
-            MapService.getGame().then( () => GamePolygon.init( $scope.map ) );
+            MapService.getGame().then( function() {
+                GamePolygon.init( $scope.map )
+            } );
         }
     };
 

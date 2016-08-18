@@ -2,16 +2,21 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
 
     $scope.model = AppModel;
 
-    $scope.updateUserGeolocation = function(  ){
+    $scope.updateUserGeolocation = function() {
         navigator.geolocation.getCurrentPosition(
             $scope.onGetUserLocation.bind( this ),
-            err => console.log( err )
+            $scope.onGeolocationError.bind( this ), {
+                enableHighAccuracy: true,
+                timeout: 4000
+            }
         );
     };
 
-    $scope.onGetUserLocation = ( result ) => {
-        $scope.model.user.position.latitude = result.coords.latitude + ( Math.random() - 0.5 ) / 500;
-        $scope.model.user.position.longitude = result.coords.longitude + ( Math.random() - 0.5 ) / 500;
+    $scope.onGetUserLocation = function( result ) {
+        // $scope.model.user.position.latitude = result.coords.latitude + ( Math.random() - 0.5 ) / 500;
+        // $scope.model.user.position.longitude = result.coords.longitude + ( Math.random() - 0.5 ) / 500;
+        $scope.model.user.position.latitude = 48.8781;
+        $scope.model.user.position.longitude = 2.3291;
 
         UserMarker.update( $scope.model.user );
 
@@ -20,9 +25,11 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
         MapService.sendPosition();
     };
 
-    // MapService.start( () => {
-        $scope.updateUserGeolocation();
-        $interval( $scope.updateUserGeolocation, 5000 );
-    // } );
+    $scope.onGeolocationError = function( err ) {
+        console.log( err );
+    };
+
+    $scope.updateUserGeolocation();
+    $interval( $scope.updateUserGeolocation, 5000 );
 
 } );

@@ -26,7 +26,9 @@ app.factory( 'PlayersLayer', function( $http ) {
         update: function( players ) {
             if ( this.map ) {
                 this.layer.clearLayers();
-                players.forEach( player => this.addPlayer( player ) );
+                players.forEach( function( player ) {
+                    this.addPlayer( player )
+                }, this );
             }
         }
     }

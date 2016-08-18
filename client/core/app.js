@@ -1,3 +1,5 @@
+document.body.innerHTML = "window.location.href";
+
 var app = angular.module( 'Application', [ 'ngRoute' ] );
 
 app.config( function( $routeProvider, $locationProvider ) {
@@ -15,10 +17,10 @@ app.config( function( $routeProvider, $locationProvider ) {
         redirectTo: '/'
     } );
 
-    $locationProvider.html5Mode( {
-        enabled: true,
-        requireBase: false
-    } );
+    // $locationProvider.html5Mode( {
+    //     enabled: true,
+    //     requireBase: false
+    // } );
 
 } );
 

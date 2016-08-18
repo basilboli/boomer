@@ -1,15 +1,19 @@
-app.directive( 'spotMarker', function() {
+app.directive( 'spotMarker', function( MapService ) {
 
     return {
         restrict: 'E',
-        link: ( $scope ) => {
-            $scope.marker = L.marker( [
+        link: function( $scope ) {
+            $scope.marker = L.circle( [
                 $scope.spot.location.coordinates[ 1 ],
                 $scope.spot.location.coordinates[ 0 ]
-            ] );
+            ], 25, {
+                stroke: false,
+                fillOpacity: 1,
+                fillColor: $scope.spot.checked ? "green" : $scope.spot.nearby ? "blue" : "grey"
+            } );
 
             $scope.marker.on( 'click', function( e ) {
-                console.log( 'ok' );
+                if( $scope.spot.nearby && !$scope.spot.checked ) MapService.checkSpot( $scope.spot );
             } );
 
             $scope.marker.addTo( $scope.layer );
