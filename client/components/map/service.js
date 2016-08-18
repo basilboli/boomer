@@ -66,15 +66,17 @@ app.factory( 'MapService', function( $http, AppModel, PlayersLayer, SpotsLayer )
         },
 
         checkSpot: function( spot ) {
+            AppModel.loader.show = true;
             $http.post( 'http://boomer.im:3000/spot/checkin', {
                 "playerid": AppModel.user.playerid,
                 "spotid": spot.spotid
             } ).then(
                 function( resp ) {
-                    alert( 'Spot checked' )
+                    AppModel.loader.show = false;
                 },
                 function( err ) {
-                    console.log( err )
+                    console.log( err );
+                    AppModel.loader.show = false;
                 }
             );
         }

@@ -1,33 +1,45 @@
-document.body.innerHTML = "window.location.href";
-
 var app = angular.module( 'Application', [ 'ngRoute' ] );
 
 app.config( function( $routeProvider, $locationProvider ) {
-
-    // $httpProvider.defaults.headers.common = {};
-    // $httpProvider.defaults.headers.post = {};
-
     $routeProvider.when( '/', {
         redirectTo: '/login'
     } ).when( '/login', {
-        template: '<login></login>'
+        controller: "loginCtrl",
+        templateUrl: 'templates/login/template.html'
     } ).when( '/map', {
-        template: '<map></map>'
+        template: '<map></map>',
+        resolve: {
+            preload: function( AppModel, $q ) {
+                var deferred = $q.defer();
+
+                AppModel.loader.show = true;
+
+                navigator.geolocation.getCurrentPosition(
+                    function( result ) {
+                        AppModel.user.position.latitude = result.coords.latitude;
+                        AppModel.user.position.longitude = result.coords.longitude;
+                        deferred.resolve();
+                    }
+                );
+
+                return deferred.promise;
+            }
+        }
     } ).otherwise( {
         redirectTo: '/'
     } );
-
-    // $locationProvider.html5Mode( {
-    //     enabled: true,
-    //     requireBase: false
-    // } );
-
 } );
 
 app.config( [ '$httpProvider', function( $httpProvider ) {
-    //Reset headers to avoid OPTIONS request (aka preflight)
     $httpProvider.defaults.headers.common = {};
     $httpProvider.defaults.headers.post = {};
     $httpProvider.defaults.headers.put = {};
     $httpProvider.defaults.headers.patch = {};
 } ] );
+
+app.controller( 'appCtrl', function( $scope, AppModel ) {
+
+    $scope.model = AppModel;
+
+
+} );

@@ -20,7 +20,7 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
 
         UserMarker.update( $scope.model.user );
 
-        $scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ] );
+        //$scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ] );
 
         MapService.sendPosition();
     };
@@ -30,6 +30,7 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
     };
 
     $scope.updateUserGeolocation();
+
     $interval( $scope.updateUserGeolocation, 5000 );
 
 } );

@@ -1,4 +1,4 @@
-app.directive( 'map', function( $compile, PlayersLayer, UserMarker, MapService, GamePolygon, SpotsLayer ) {
+app.directive( 'map', function( PlayersLayer, UserMarker, MapService, GamePolygon, SpotsLayer, AppModel ) {
 
     return {
         restrict: 'E',
@@ -8,7 +8,7 @@ app.directive( 'map', function( $compile, PlayersLayer, UserMarker, MapService, 
 
             L.mapbox.accessToken = 'pk.eyJ1IjoiZGFtbW1pZW4iLCJhIjoiY2lqeDRsc3NzMDAxd3Zua3AxNGg3N2g3MyJ9.VB6ZqQCOi9LMnR2ojeOHxw';
 
-            $scope.map = L.mapbox.map( elements[ 0 ], 'mapbox.light' ).setView( [ 50, 30 ], 13 );
+            $scope.map = L.mapbox.map( elements[ 0 ], 'mapbox.light' ).setView( [ AppModel.user.position.latitude, AppModel.user.position.longitude ], 13 );
 
             SpotsLayer.init( $scope.map );
 
@@ -17,7 +17,8 @@ app.directive( 'map', function( $compile, PlayersLayer, UserMarker, MapService, 
             UserMarker.init( $scope.map );
 
             MapService.getGame().then( function() {
-                GamePolygon.init( $scope.map )
+                GamePolygon.init( $scope.map );
+                AppModel.loader.show = false;
             } );
         }
     };

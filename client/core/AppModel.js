@@ -10,6 +10,10 @@ app.factory( 'AppModel', function() {
 
         game: {
             polygon: []
+        },
+
+        loader: {
+            show: false
         }
 
     };
