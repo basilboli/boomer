@@ -60,7 +60,9 @@ app.factory( 'AppModel', function() {
 
         loader: {
             show: false
-        }
+        },
+
+        heading: 0
 
     };
 
@@ -148,7 +150,19 @@ app.directive( 'map', function( PlayersLayer, UserMarker, MapService, GamePolygo
 
             L.mapbox.accessToken = 'pk.eyJ1IjoiZGFtbW1pZW4iLCJhIjoiY2lqeDRsc3NzMDAxd3Zua3AxNGg3N2g3MyJ9.VB6ZqQCOi9LMnR2ojeOHxw';
 
-            $scope.map = L.mapbox.map( elements[ 0 ], 'mapbox.light' ).setView( [ AppModel.user.position.latitude, AppModel.user.position.longitude ], 13 );
+            $scope.map = L.mapbox.map( elements[ 0 ], 'mapbox.light', {
+                zoomControl: false,
+                attributionControl: false,
+                reuseTiles: true,
+                fadeAnimation: false,
+                //zoomAnimation: false,
+                minZoom: 10,
+                maxZoom: 18
+            } ).setView( [ AppModel.user.position.latitude, AppModel.user.position.longitude ], 13 );
+
+            // $scope.map.on( 'zoomend', function( e ) {
+            //     console.log( $scope.map.getZoom() );
+            // } );
 
             SpotsLayer.init( $scope.map );
 
@@ -172,8 +186,8 @@ app.factory( 'GamePolygon', function( $http, AppModel ) {
         polygon: null,
         options: {
             stroke: false,
-            fillOpacity: 0.25,
-            fillColor: "#00AEEF"
+            fillOpacity: 0.2,
+            fillColor: "#000000"
         },
 
         init: function( map ) {
@@ -201,7 +215,8 @@ app.factory( 'PlayersLayer', function( $http ) {
         options: {
             stroke: false,
             fillOpacity: 1,
-            fillColor: "#CC0000"
+            fillColor: "#CC0000",
+            radius: 8
         },
 
         init: function( map ) {
@@ -210,7 +225,7 @@ app.factory( 'PlayersLayer', function( $http ) {
         },
 
         createMarker: function( player ) {
-            return L.circle( [ player.coordinates[ 1 ], player.coordinates[ 0 ] ], 25, this.options );
+            return L.circleMarker( [ player.coordinates[ 1 ], player.coordinates[ 0 ] ], this.options );
         },
 
         addPlayer: function( player ) {
@@ -298,15 +313,17 @@ app.factory( 'MapService', function( $http, AppModel, PlayersLayer, SpotsLayer )
         },
 
         checkSpot: function( spot ) {
+            AppModel.loader.show = true;
             $http.post( 'http://boomer.im:3000/spot/checkin', {
                 "playerid": AppModel.user.playerid,
                 "spotid": spot.spotid
             } ).then(
                 function( resp ) {
-                    alert( 'Spot checked' )
+                    AppModel.loader.show = false;
                 },
                 function( err ) {
-                    console.log( err )
+                    console.log( err );
+                    AppModel.loader.show = false;
                 }
             );
         }
@@ -320,12 +337,13 @@ app.directive( 'spotMarker', function( MapService ) {
     return {
         restrict: 'E',
         link: function( $scope ) {
-            $scope.marker = L.circle( [
+            $scope.marker = L.circleMarker( [
                 $scope.spot.location.coordinates[ 1 ],
                 $scope.spot.location.coordinates[ 0 ]
-            ], 25, {
+            ], {
                 stroke: false,
                 fillOpacity: 1,
+                radius: 8,
                 fillColor: $scope.spot.checked ? "green" : $scope.spot.nearby ? "blue" : "grey"
             } );
 
@@ -385,19 +403,36 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
     return {
         map: null,
         marker: null,
-        options: {
-            stroke: true,
-            fillOpacity: 0.4,
-            weight: 2,
+        areaOptions: {
+            stroke: false,
+            fillOpacity: 0.3,
             color: "#00AEEF",
+            fillColor: "#00AEEF"
+        },
+        markerOptions: {
+            stroke: false,
+            fillOpacity: 1,
+            radius: 8,
             fillColor: "#00AEEF"
         },
 
         init: function( map ) {
             this.map = map;
+            this.headingIcon = L.icon( {
+                iconUrl: 'libs/images/heading.png',
+                iconSize: [ 22, 37 ],
+                iconAnchor: [ 11, 27 ],
+            } );
         },
 
         setPosition: function( position ) {
+            this.area.setLatLng(
+                L.latLng(
+                    position.latitude,
+                    position.longitude
+                )
+            );
+
             this.marker.setLatLng(
                 L.latLng(
                     position.latitude,
@@ -406,14 +441,33 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
             );
         },
 
+        setHeading: function( angle ) {
+            this.marker.setRotationAngle( angle );
+        },
+
         createMarker: function( position ) {
-            console.log( [ position.latitude, position.longitude ] );
-            this.marker = L.circle( [ position.latitude, position.longitude ], 50, this.options ).addTo( this.map );
+            this.area = L.circle( [ position.latitude, position.longitude ], 50, this.areaOptions ).addTo( this.map );
+            // this.marker = L.circleMarker( [ position.latitude, position.longitude ], this.markerOptions ).addTo( this.map );
+            this.marker = L.marker( [ position.latitude, position.longitude ], {
+                icon: this.headingIcon,
+                rotationAngle: 0,
+                rotationOrigin: "center center"
+            } ).addTo( this.map );
+
+            if ( navigator.compass ) {
+                navigator.compass.watchHeading( function( heading ) {
+                    this.setHeading( heading.magneticHeading );
+                }.bind( this ), function( err ) {
+                    console.log( err );
+                }, {
+                    frequency: 1000
+                } );
+            }
         },
 
         update: function( user ) {
             if ( this.map ) {
-                if ( this.marker ) this.setPosition( user.position );
+                if ( this.area && this.marker ) this.setPosition( user.position );
                 else this.createMarker( user.position );
             }
         }

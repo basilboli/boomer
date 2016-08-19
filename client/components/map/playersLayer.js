@@ -6,7 +6,8 @@ app.factory( 'PlayersLayer', function( $http ) {
         options: {
             stroke: false,
             fillOpacity: 1,
-            fillColor: "#CC0000"
+            fillColor: "#CC0000",
+            radius: 8
         },
 
         init: function( map ) {
@@ -15,7 +16,7 @@ app.factory( 'PlayersLayer', function( $http ) {
         },
 
         createMarker: function( player ) {
-            return L.circle( [ player.coordinates[ 1 ], player.coordinates[ 0 ] ], 25, this.options );
+            return L.circleMarker( [ player.coordinates[ 1 ], player.coordinates[ 0 ] ], this.options );
         },
 
         addPlayer: function( player ) {

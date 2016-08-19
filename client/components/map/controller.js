@@ -1,4 +1,4 @@
-app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, UserMarker ) {
+app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService, UserMarker ) {
 
     $scope.model = AppModel;
 
@@ -7,7 +7,7 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
             $scope.onGetUserLocation.bind( this ),
             $scope.onGeolocationError.bind( this ), {
                 enableHighAccuracy: true,
-                timeout: 4000
+                timeout: 5000
             }
         );
     };
@@ -23,14 +23,15 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
         //$scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ] );
 
         MapService.sendPosition();
+
+        $timeout( $scope.updateUserGeolocation, 3000 );
     };
 
     $scope.onGeolocationError = function( err ) {
         console.log( err );
+        $timeout( $scope.updateUserGeolocation, 3000 );
     };
 
     $scope.updateUserGeolocation();
-
-    $interval( $scope.updateUserGeolocation, 5000 );
 
 } );
