@@ -36,7 +36,7 @@ const (
 	LocUpdateNotification = "LocUpdate"
 )
 
-func NewServer() (broker *Broker) {
+func NewSSEServer() (broker *Broker) {
 	// Instantiate a broker
 	broker = &Broker{
 		Notifier:       make(chan []byte, 1),
