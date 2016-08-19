@@ -14,7 +14,9 @@ app.factory( 'AppModel', function() {
 
         loader: {
             show: false
-        }
+        },
+
+        heading: 0
 
     };
 

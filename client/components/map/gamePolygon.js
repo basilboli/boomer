@@ -5,8 +5,8 @@ app.factory( 'GamePolygon', function( $http, AppModel ) {
         polygon: null,
         options: {
             stroke: false,
-            fillOpacity: 0.25,
-            fillColor: "#00AEEF"
+            fillOpacity: 0.2,
+            fillColor: "#000000"
         },
 
         init: function( map ) {
