@@ -38,5 +38,6 @@
 ###game mechanics	
 - every clue leads to some spot
 - when you are nearby the clue you can read the clue text and guess the actual spot 
+- when you have checked the spot all the clues and the spot becomes green
 - when you are nearby the spot it becomes visible to you and you can make checkin
 - global leaderboard of users
