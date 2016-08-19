@@ -54,6 +54,10 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                 rotationOrigin: "center center"
             } ).addTo( this.map );
 
+            this.watchCompass();
+        },
+
+        watchCompass(){
             if ( navigator.compass ) {
                 navigator.compass.watchHeading( function( heading ) {
                     this.setHeading( heading.magneticHeading );
@@ -63,7 +67,7 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                     frequency: 1000
                 } );
             }
-        },
+        }
 
         update: function( user ) {
             if ( this.map ) {

@@ -68,16 +68,6 @@ app.factory( 'AppModel', function() {
 
 } );
 
-app.directive( 'loader', function() {
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'templates/loader/template.html'
-    }
-
-} );
-
 app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
 
     $scope.onConnect = function() {
@@ -100,6 +90,16 @@ app.factory( 'LoginService', function( $http, AppModel ) {
     return {
 
     };
+
+} );
+
+app.directive( 'loader', function() {
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'templates/loader/template.html'
+    }
 
 } );
 
@@ -455,6 +455,10 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                 rotationOrigin: "center center"
             } ).addTo( this.map );
 
+            this.watchCompass();
+        },
+
+        watchCompass(){
             if ( navigator.compass ) {
                 navigator.compass.watchHeading( function( heading ) {
                     this.setHeading( heading.magneticHeading );
@@ -464,7 +468,7 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                     frequency: 1000
                 } );
             }
-        },
+        }
 
         update: function( user ) {
             if ( this.map ) {
