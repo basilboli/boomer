@@ -38,5 +38,7 @@
 ###game mechanics
 - every clue leads to the final hidden
 - when you are nearby a clue spot you can check it and read the clue text and guess the final hidden spot
+- when you have checked the spot all the clues and the spot becomes green
 - when you are nearby the final hidden spot it becomes visible to you and you can check it
 - The winner team is the first team to find and check the final hidden spot
+- global leaderboard of users
