@@ -14,8 +14,9 @@
 
 all:
 
-TAG = 2.0
-PREFIX = gcr.io/boomer-1470064436690/nginxhttps
+TAG = 0.0.1
+LATEST=latest
+PREFIX = gcr.io/boomer-1470064436690/mynginx
 KEY = /tmp/nginx.key
 CERT = /tmp/nginx.crt
 SECRET = /tmp/secret.json
@@ -27,17 +28,11 @@ keys:
 secret:
 	go run make_secret.go -crt $(CERT) -key $(KEY) > $(SECRET)
 
-container:
-	docker build -t $(PREFIX):$(TAG) .
+build:
+	docker build -t $(PREFIX):$(TAG) -t $(PREFIX):$(LATEST) .
 
-push: container
-	docker push $(PREFIX):$(TAG)
-
-deploy: push
-	kubectl create -f nginx-app.yaml
-
-delete:
-	kubectl delete --ignore-not-found -f nginx-app.yaml
+push: build
+	gcloud docker push $(PREFIX):$(TAG)
 
 clean:
 	rm $(KEY)

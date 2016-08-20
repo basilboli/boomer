@@ -68,16 +68,6 @@ app.factory( 'AppModel', function() {
 
 } );
 
-app.directive( 'loader', function() {
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'templates/loader/template.html'
-    }
-
-} );
-
 app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
 
     $scope.onConnect = function() {
@@ -103,7 +93,17 @@ app.factory( 'LoginService', function( $http, AppModel ) {
 
 } );
 
-app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, UserMarker ) {
+app.directive( 'loader', function() {
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'templates/loader/template.html'
+    }
+
+} );
+
+app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService, UserMarker ) {
 
     $scope.model = AppModel;
 
@@ -112,7 +112,7 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
             $scope.onGetUserLocation.bind( this ),
             $scope.onGeolocationError.bind( this ), {
                 enableHighAccuracy: true,
-                timeout: 4000
+                timeout: 5000
             }
         );
     };
@@ -128,15 +128,16 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
         //$scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ] );
 
         MapService.sendPosition();
+
+        $timeout( $scope.updateUserGeolocation, 3000 );
     };
 
     $scope.onGeolocationError = function( err ) {
         console.log( err );
+        $timeout( $scope.updateUserGeolocation, 3000 );
     };
 
     $scope.updateUserGeolocation();
-
-    $interval( $scope.updateUserGeolocation, 5000 );
 
 } );
 
@@ -454,6 +455,10 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                 rotationOrigin: "center center"
             } ).addTo( this.map );
 
+            this.watchCompass();
+        },
+
+        watchCompass(){
             if ( navigator.compass ) {
                 navigator.compass.watchHeading( function( heading ) {
                     this.setHeading( heading.magneticHeading );
@@ -463,7 +468,7 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                     frequency: 1000
                 } );
             }
-        },
+        }
 
         update: function( user ) {
             if ( this.map ) {

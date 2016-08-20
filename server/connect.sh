@@ -2,4 +2,6 @@ export GOOGLE_APPLICATION_CREDENTIALS=/Users/basilboli/dev/google/serviceaccount
 
 gcloud config configurations activate boomer
 
+gcloud config set project boomer-1470064436690
+
 gcloud container clusters get-credentials boomer-cluster
