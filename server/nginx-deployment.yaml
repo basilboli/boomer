@@ -14,7 +14,7 @@ spec:
         secret:
           secretName: nginxsecret
       containers:
-      - name: nginxhttps
+      - name: mynginx
         image: gcr.io/boomer-1470064436690/mynginx:0.0.1
         ports:
         - containerPort: 443
