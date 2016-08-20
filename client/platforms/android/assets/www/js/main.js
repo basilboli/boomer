@@ -19,6 +19,9 @@ app.config( function( $routeProvider, $locationProvider ) {
                         AppModel.user.position.latitude = result.coords.latitude;
                         AppModel.user.position.longitude = result.coords.longitude;
                         deferred.resolve();
+                    },
+                    function( err ) {
+                        console.log( err );
                     }
                 );
 
@@ -103,7 +106,7 @@ app.factory( 'LoginService', function( $http, AppModel ) {
 
 } );
 
-app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, UserMarker ) {
+app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService, UserMarker ) {
 
     $scope.model = AppModel;
 
@@ -112,7 +115,7 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
             $scope.onGetUserLocation.bind( this ),
             $scope.onGeolocationError.bind( this ), {
                 enableHighAccuracy: true,
-                timeout: 4000
+                timeout: 5000
             }
         );
     };
@@ -128,15 +131,16 @@ app.controller( 'mapCtrl', function( $scope, $interval, AppModel, MapService, Us
         //$scope.map.setView( [ $scope.model.user.position.latitude, $scope.model.user.position.longitude ] );
 
         MapService.sendPosition();
+
+        $timeout( $scope.updateUserGeolocation, 3000 );
     };
 
     $scope.onGeolocationError = function( err ) {
         console.log( err );
+        $timeout( $scope.updateUserGeolocation, 3000 );
     };
 
     $scope.updateUserGeolocation();
-
-    $interval( $scope.updateUserGeolocation, 5000 );
 
 } );
 
@@ -419,9 +423,9 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
         init: function( map ) {
             this.map = map;
             this.headingIcon = L.icon( {
-                iconUrl: 'libs/images/heading.png',
-                iconSize: [ 22, 37 ],
-                iconAnchor: [ 11, 27 ],
+                iconUrl: 'libs/images/compass.svg',
+                iconSize: [ 48, 48 ],
+                iconAnchor: [ 24, 24 ],
             } );
         },
 
@@ -454,13 +458,17 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                 rotationOrigin: "center center"
             } ).addTo( this.map );
 
+            this.watchCompass();
+        },
+
+        watchCompass(){
             if ( navigator.compass ) {
                 navigator.compass.watchHeading( function( heading ) {
                     this.setHeading( heading.magneticHeading );
                 }.bind( this ), function( err ) {
                     console.log( err );
                 }, {
-                    frequency: 1000
+                    frequency: 50
                 } );
             }
         },

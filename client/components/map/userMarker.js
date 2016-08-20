@@ -19,9 +19,9 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
         init: function( map ) {
             this.map = map;
             this.headingIcon = L.icon( {
-                iconUrl: 'libs/images/heading.png',
-                iconSize: [ 22, 37 ],
-                iconAnchor: [ 11, 27 ],
+                iconUrl: 'libs/images/compass.svg',
+                iconSize: [ 48, 48 ],
+                iconAnchor: [ 24, 24 ],
             } );
         },
 
@@ -64,10 +64,10 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                 }.bind( this ), function( err ) {
                     console.log( err );
                 }, {
-                    frequency: 1000
+                    frequency: 50
                 } );
             }
-        }
+        },
 
         update: function( user ) {
             if ( this.map ) {

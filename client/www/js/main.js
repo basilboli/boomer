@@ -19,6 +19,9 @@ app.config( function( $routeProvider, $locationProvider ) {
                         AppModel.user.position.latitude = result.coords.latitude;
                         AppModel.user.position.longitude = result.coords.longitude;
                         deferred.resolve();
+                    },
+                    function( err ) {
+                        console.log( err );
                     }
                 );
 
@@ -68,6 +71,16 @@ app.factory( 'AppModel', function() {
 
 } );
 
+app.directive( 'loader', function() {
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'templates/loader/template.html'
+    }
+
+} );
+
 app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
 
     $scope.onConnect = function() {
@@ -90,16 +103,6 @@ app.factory( 'LoginService', function( $http, AppModel ) {
     return {
 
     };
-
-} );
-
-app.directive( 'loader', function() {
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'templates/loader/template.html'
-    }
 
 } );
 
@@ -420,9 +423,9 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
         init: function( map ) {
             this.map = map;
             this.headingIcon = L.icon( {
-                iconUrl: 'libs/images/heading.png',
-                iconSize: [ 22, 37 ],
-                iconAnchor: [ 11, 27 ],
+                iconUrl: 'libs/images/compass.svg',
+                iconSize: [ 48, 48 ],
+                iconAnchor: [ 24, 24 ],
             } );
         },
 
@@ -465,10 +468,10 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                 }.bind( this ), function( err ) {
                     console.log( err );
                 }, {
-                    frequency: 1000
+                    frequency: 50
                 } );
             }
-        }
+        },
 
         update: function( user ) {
             if ( this.map ) {

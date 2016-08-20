@@ -19,6 +19,9 @@ app.config( function( $routeProvider, $locationProvider ) {
                         AppModel.user.position.latitude = result.coords.latitude;
                         AppModel.user.position.longitude = result.coords.longitude;
                         deferred.resolve();
+                    },
+                    function( err ) {
+                        console.log( err );
                     }
                 );
 
