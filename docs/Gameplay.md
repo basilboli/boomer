@@ -42,3 +42,7 @@
 - when you are nearby the final hidden spot it becomes visible to you and you can check it
 - The winner team is the first team to find and check the final hidden spot
 - global leaderboard of users
+
+### game point of interests (curated list by boomer team)
+- https://docs.google.com/spreadsheets/d/134LjB_tT33Fs_w4J-cZyAnU6-Vsgt4GDlZwfI14i4VQ/edit#gid=0
+

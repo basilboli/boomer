@@ -17,17 +17,17 @@ deploy: push
 deployOnly:
 	kubectl create -f spec.yaml
 
+nginx: push
+	kubectl create -f spec.yaml
+
 delete:
 	kubectl delete --ignore-not-found -f spec.yaml
 
 logs:
 	kubectl logs -f boomer-server
 
-svc:
-	kubectl get svc
+deploy-nginx: push
+	kubectl create -f nginx-deployment.yaml
 
-pods:
-	kubectl get pods
-
-events:
-	kubectl get events
+delete-nginx:
+	kubectl delete --ignore-not-found -f nginx-deployment.yaml
