@@ -14,7 +14,7 @@
 
 all:
 
-TAG = 0.0.1
+TAG = 0.0.2
 LATEST=latest
 PREFIX = gcr.io/boomer-1470064436690/mynginx
 KEY = /tmp/nginx.key

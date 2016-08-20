@@ -16,5 +16,6 @@ FROM nginx
 MAINTAINER Vasyl Vaskul <vasyl@fifty-five.com>
 COPY default.conf /etc/nginx/conf.d/default.conf
 COPY www /usr/share/nginx/html
+RUN mkdir /usr/share/nginx/blog
 COPY blog /usr/share/nginx/blog
 CMD ["nginx", "-g", "daemon off;"]
