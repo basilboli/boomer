@@ -29,7 +29,7 @@ secret:
 	go run make_secret.go -crt $(CERT) -key $(KEY) > $(SECRET)
 
 build:
-	docker build -t $(PREFIX):$(TAG) -t $(PREFIX):$(LATEST) .
+	docker build -t $(PREFIX):$(TAG) .
 
 push: build
 	gcloud docker push $(PREFIX):$(TAG)

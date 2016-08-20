@@ -17,8 +17,8 @@ spec:
   selector:
     app: nginx
 ---
-apiVersion: v1
-kind: ReplicationController
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
   name: my-nginx
 spec:
@@ -34,7 +34,7 @@ spec:
           secretName: nginxsecret
       containers:
       - name: nginxhttps
-        image: gcr.io/boomer-1470064436690/nginxhttps:2.0
+        image: gcr.io/boomer-1470064436690/mynginx:0.0.1
         ports:
         - containerPort: 443
         - containerPort: 80

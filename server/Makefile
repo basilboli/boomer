@@ -11,23 +11,14 @@ run: build
 push: build
 	gcloud docker push $(PREFIX):$(TAG)
 
-deploy: push
+deploy:
 	kubectl create -f spec.yaml
 
-deployOnly:
-	kubectl create -f spec.yaml
-
-nginx: push
-	kubectl create -f spec.yaml
+nginx:
+	kubectl create -f nginx-deployment.yaml
 
 delete:
 	kubectl delete --ignore-not-found -f spec.yaml
-
-logs:
-	kubectl logs -f boomer-server
-
-deploy-nginx: push
-	kubectl create -f nginx-deployment.yaml
 
 delete-nginx:
 	kubectl delete --ignore-not-found -f nginx-deployment.yaml
