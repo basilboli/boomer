@@ -16,6 +16,7 @@ deploy:
 
 nginx:
 	kubectl create -f nginx-deployment.yaml
+	kubectl create -f nginx-svc.yaml
 
 delete:
 	kubectl delete --ignore-not-found -f spec.yaml
