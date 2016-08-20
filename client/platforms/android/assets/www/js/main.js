@@ -19,6 +19,9 @@ app.config( function( $routeProvider, $locationProvider ) {
                         AppModel.user.position.latitude = result.coords.latitude;
                         AppModel.user.position.longitude = result.coords.longitude;
                         deferred.resolve();
+                    },
+                    function( err ) {
+                        console.log( err );
                     }
                 );
 
@@ -93,6 +96,8 @@ app.factory( 'LoginService', function( $http, AppModel ) {
 
 } );
 
+<<<<<<< HEAD
+=======
 app.directive( 'loader', function() {
 
     return {
@@ -103,6 +108,7 @@ app.directive( 'loader', function() {
 
 } );
 
+>>>>>>> c4cabe68d46cacfb8ca70a076086dcd352629688
 app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService, UserMarker ) {
 
     $scope.model = AppModel;
@@ -420,9 +426,9 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
         init: function( map ) {
             this.map = map;
             this.headingIcon = L.icon( {
-                iconUrl: 'libs/images/heading.png',
-                iconSize: [ 22, 37 ],
-                iconAnchor: [ 11, 27 ],
+                iconUrl: 'libs/images/compass.svg',
+                iconSize: [ 48, 48 ],
+                iconAnchor: [ 24, 24 ],
             } );
         },
 
@@ -465,7 +471,7 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                 }.bind( this ), function( err ) {
                     console.log( err );
                 }, {
-                    frequency: 1000
+                    frequency: 50
                 } );
             }
         }
