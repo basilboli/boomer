@@ -13,6 +13,10 @@
     <feature name="Vibration">
         <param name="android-package" value="org.apache.cordova.vibration.Vibration" />
     </feature>
+    <feature name="SplashScreen">
+        <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
+        <param name="onload" value="true" />
+    </feature>
     <name>Boomer</name>
     <description />
     <author email="dev@boomer.im" href="http://boomer.im">
@@ -27,10 +31,27 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     <allow-intent href="market:*" />
-    <icon density="xhdpi" src="res/android/xhdpi.png" />
-    <icon density="mdpi" src="res/android/mdpi.png" />
-    <icon density="hdpi" src="res/android/hdpi.png" />
-    <icon density="xxhdpi" src="res/android/xxhdpi.png" />
-    <icon density="xxxhdpi" src="res/android/xxxhdpi.png" />
+    <splash density="land-hdpi" src="res/android/screen/screen-xxxhdpi-landscape.png" />
+    <splash density="land-ldpi" src="res/android/screen/screen-xxxhdpi-landscape.png" />
+    <splash density="land-mdpi" src="res/android/screen/screen-xxxhdpi-landscape.png" />
+    <splash density="land-xhdpi" src="res/android/screen/screen-xxxhdpi-landscape.png" />
+    <splash density="land-xxhdpi" src="res/android/screen/screen-xxxhdpi-landscape.png" />
+    <splash density="land-xxxhdpi" src="res/android/screen/screen-xxxhdpi-landscape.png" />
+    <splash density="port-hdpi" src="res/android/screen/screen-xxxhdpi-portrait.png" />
+    <splash density="port-ldpi" src="res/android/screen/screen-xxxhdpi-portrait.png" />
+    <splash density="port-mdpi" src="res/android/screen/screen-xxxhdpi-portrait.png" />
+    <splash density="port-xhdpi" src="res/android/screen/screen-xxxhdpi-portrait.png" />
+    <splash density="port-xxhdpi" src="res/android/screen/screen-xxxhdpi-portrait.png" />
+    <splash density="port-xxxhdpi" src="res/android/screen/screen-xxxhdpi-portrait.png" />
+    <icon density="xhdpi" src="res/android/icon/xhdpi.png" />
+    <icon density="mdpi" src="res/android/icon/mdpi.png" />
+    <icon density="hdpi" src="res/android/icon/hdpi.png" />
+    <icon density="xxhdpi" src="res/android/icon/xxhdpi.png" />
+    <icon density="xxxhdpi" src="res/android/icon/xxxhdpi.png" />
     <preference name="loglevel" value="DEBUG" />
+    <preference name="AutoHideSplashScreen" value="true" />
+    <preference name="SplashScreenDelay" value="3000" />
+    <preference name="FadeSplashScreen" value="false" />
+    <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="SplashMaintainAspectRatio" value="true" />
 </widget>

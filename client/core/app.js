@@ -19,7 +19,7 @@ app.config( function( $routeProvider, $locationProvider ) {
                         AppModel.user.position.latitude = result.coords.latitude;
                         AppModel.user.position.longitude = result.coords.longitude;
                         AppModel.loader.show = false;
-                        navigator.vibrate( [ 250, 50, 250 ] );
+                        navigator.vibrate( [ 200, 100, 200 ] );
                         deferred.resolve();
                     },
                     function( err ) {
