@@ -73,42 +73,7 @@ app.factory( 'AppModel', function() {
 
 } );
 
-app.directive( 'loader', function() {
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'templates/loader/template.html'
-    }
-
-} );
-
-app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
-
-    $scope.onConnect = function() {
-        $location.path( '/map' );
-    }
-
-} );
-
-app.directive( 'login', function() {
-
-    return {
-        replace: true,
-        templateUrl: 'templates/login/template.html'
-    }
-
-} );
-
-app.factory( 'LoginService', function( $http, AppModel ) {
-
-    return {
-
-    };
-
-} );
-
-app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService, UserMarker ) {
+app.controller( 'mapCtrl', function( $scope, $timeout, $window, AppModel, MapService, UserMarker ) {
 
     $scope.model = AppModel;
 
@@ -138,9 +103,10 @@ app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService, Use
     };
 
     $scope.onGeolocationError = function( err ) {
-        console.log( err );
         $timeout( $scope.updateUserGeolocation, 3000 );
     };
+
+    $window.plugins.insomnia.keepAwake();
 
     $scope.updateUserGeolocation();
 
@@ -480,6 +446,41 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                 else this.createMarker( user.position );
             }
         }
+    }
+
+} );
+
+app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
+
+    $scope.onConnect = function() {
+        $location.path( '/map' );
+    }
+
+} );
+
+app.directive( 'login', function() {
+
+    return {
+        replace: true,
+        templateUrl: 'templates/login/template.html'
+    }
+
+} );
+
+app.factory( 'LoginService', function( $http, AppModel ) {
+
+    return {
+
+    };
+
+} );
+
+app.directive( 'loader', function() {
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'templates/loader/template.html'
     }
 
 } );

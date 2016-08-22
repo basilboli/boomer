@@ -1,4 +1,4 @@
-app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService, UserMarker ) {
+app.controller( 'mapCtrl', function( $scope, $timeout, $window, AppModel, MapService, UserMarker ) {
 
     $scope.model = AppModel;
 
@@ -28,9 +28,10 @@ app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService, Use
     };
 
     $scope.onGeolocationError = function( err ) {
-        console.log( err );
         $timeout( $scope.updateUserGeolocation, 3000 );
     };
+
+    $window.plugins.insomnia.keepAwake();
 
     $scope.updateUserGeolocation();
 
