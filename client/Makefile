@@ -14,26 +14,16 @@
 
 all:
 
-TAG = 0.0.2
+TAG = 0.0.11
 LATEST=latest
-PREFIX = gcr.io/boomer-1470064436690/mynginx
-KEY = /tmp/nginx.key
-CERT = /tmp/nginx.crt
-SECRET = /tmp/secret.json
-
-keys:
-	# The CName used here is specific to the service specified in nginx-app.yaml.
-	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $(KEY) -out $(CERT) -subj "/CN=nginxsvc/O=nginxsvc"
-
-secret:
-	go run make_secret.go -crt $(CERT) -key $(KEY) > $(SECRET)
+PREFIX = gcr.io/boomer-1470064436690
+NAME = nginx
 
 build:
-	docker build -t $(PREFIX):$(TAG) .
+	docker build -t $(PREFIX)/$(NAME):$(TAG) .
 
 push: build
-	gcloud docker push $(PREFIX):$(TAG)
+	gcloud docker push $(PREFIX)/$(NAME):$(TAG)
 
-clean:
-	rm $(KEY)
-	rm $(CERT)
+pushOnly: 
+	gcloud docker push $(PREFIX)/$(NAME):$(TAG)

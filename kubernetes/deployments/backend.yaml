@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+    role: server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:        
+      containers:
+      - image: gcr.io/boomer-1470064436690/boomer:1.0
+        name: backend
+        ports:
+        - name: backend
+          containerPort: 3000   

@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frontend
+        track: stable
+    spec:
+      containers:
+        - name: nginx
+          image: "gcr.io/boomer-1470064436690/nginx:0.0.10"
+          volumeMounts:
+            - name: "nginx-frontend-conf"
+              mountPath: "/etc/nginx/conf.d"
+            - name: "tls-certs"
+              mountPath: "/etc/tls"
+      volumes:
+        - name: "tls-certs"
+          secret:
+            secretName: "tls-certs"
+        - name: "nginx-frontend-conf"
+          configMap:
+            name: "nginx-frontend-conf"
+            items:
+              - key: "frontend.conf"
+                path: "frontend.conf"
