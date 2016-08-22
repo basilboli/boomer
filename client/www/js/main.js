@@ -18,6 +18,8 @@ app.config( function( $routeProvider, $locationProvider ) {
                     function( result ) {
                         AppModel.user.position.latitude = result.coords.latitude;
                         AppModel.user.position.longitude = result.coords.longitude;
+                        AppModel.loader.show = false;
+                        navigator.vibrate( [ 250, 50, 250 ] );
                         deferred.resolve();
                     },
                     function( err ) {
@@ -176,7 +178,6 @@ app.directive( 'map', function( PlayersLayer, UserMarker, MapService, GamePolygo
 
             MapService.getGame().then( function() {
                 GamePolygon.init( $scope.map );
-                AppModel.loader.show = false;
             } );
         }
     };

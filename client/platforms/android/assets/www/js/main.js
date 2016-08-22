@@ -18,6 +18,8 @@ app.config( function( $routeProvider, $locationProvider ) {
                     function( result ) {
                         AppModel.user.position.latitude = result.coords.latitude;
                         AppModel.user.position.longitude = result.coords.longitude;
+                        AppModel.loader.show = false;
+                        navigator.vibrate( [ 500, 100, 500 ] );
                         deferred.resolve();
                     },
                     function( err ) {
@@ -71,6 +73,16 @@ app.factory( 'AppModel', function() {
 
 } );
 
+app.directive( 'loader', function() {
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'templates/loader/template.html'
+    }
+
+} );
+
 app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
 
     $scope.onConnect = function() {
@@ -96,19 +108,6 @@ app.factory( 'LoginService', function( $http, AppModel ) {
 
 } );
 
-<<<<<<< HEAD
-=======
-app.directive( 'loader', function() {
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'templates/loader/template.html'
-    }
-
-} );
-
->>>>>>> c4cabe68d46cacfb8ca70a076086dcd352629688
 app.controller( 'mapCtrl', function( $scope, $timeout, AppModel, MapService, UserMarker ) {
 
     $scope.model = AppModel;
@@ -179,7 +178,6 @@ app.directive( 'map', function( PlayersLayer, UserMarker, MapService, GamePolygo
 
             MapService.getGame().then( function() {
                 GamePolygon.init( $scope.map );
-                AppModel.loader.show = false;
             } );
         }
     };
@@ -474,7 +472,7 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
                     frequency: 50
                 } );
             }
-        }
+        },
 
         update: function( user ) {
             if ( this.map ) {

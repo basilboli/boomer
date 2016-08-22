@@ -30,7 +30,6 @@ app.directive( 'map', function( PlayersLayer, UserMarker, MapService, GamePolygo
 
             MapService.getGame().then( function() {
                 GamePolygon.init( $scope.map );
-                AppModel.loader.show = false;
             } );
         }
     };
