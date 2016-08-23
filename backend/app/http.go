@@ -3,101 +3,20 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 )
-
-var BuildStamp = "No BuildStamp Provided"
-
-type HandlerFunc func(http.ResponseWriter, *http.Request)
-
-func init() {
-	log.Printf("App BuildStamp: %s\n", BuildStamp)
-}
-
-const (
-	MAX_DISTANCE = 50 // in meters
-)
-
-type CoordType float64
-
-type Coordinate [2]CoordType
-
-type Coordinates []Coordinate
-
-// Representation of set of lines
-type MultiLine []Coordinates
-
-type Point struct {
-	Type        string     `json:"type" bson:"type"`
-	Coordinates Coordinate `json:"coordinates" bson:"coordinates"`
-}
-
-type Polygon struct {
-	Type        string    `json:"-"`
-	Coordinates MultiLine `json:"coordinates"`
-}
-
-type Spot struct {
-	ID       bson.ObjectId `bson:"_id,omitempty" json:"spotid,omitempty"`
-	GameId   bson.ObjectId `bson:"gameid,omitempty" json:"-"`
-	Name     string        `bson:"name" json:"name,omitempty"`
-	Checked  bool          `bson:"checked" json:"checked"`
-	Location Point         `bson:"location" json:"location"`
-	NearBy   bool          `bson:"nearby" json:"nearby"`
-}
-
-type Game struct {
-	ID       bson.ObjectId `bson:"_id,omitempty" json:"-"`
-	Name     string        `bson:"name" json:"-"`
-	Active   bool          `bson:"active" json:"-"`
-	Geometry Polygon       `bson:"geometry" json:"geometry"`
-	Spots    []Spot        `bson:"spots" json:"spots,omitempty"`
-}
-
-type Player struct {
-	ID          bson.ObjectId `bson:"_id" json:"playerid,omitempty"`
-	Name        string        `bson:"name" json:"name"`
-	Coordinates Coordinate    `json:"coordinates" bson:"coordinates"`
-}
-
-type Checkin struct {
-	ID       bson.ObjectId `bson:"_id,omitempty" json:"checkinid"`
-	SpotId   bson.ObjectId `bson:"spotid,omitempty" json:"spotid"`
-	PlayerId bson.ObjectId `bson:"playerid,omitempty" json:"playerid"`
-}
-
-type LocUpdateResponse struct {
-	You     Player   `json:"you"`
-	Players []Player `json:"players"`
-	Spots   []Spot   `json:"spots"`
-}
-
-var c_games *mgo.Collection
-var c_spots *mgo.Collection
-var c_players *mgo.Collection
-var c_checkins *mgo.Collection
-
-func init() {
-	InitDB()
-	c_games = DB.C("games")
-	c_spots = DB.C("spots")
-	c_players = DB.C("players")
-	c_checkins = DB.C("checkins")
-}
 
 // hello world, the web server
 func HelloServer(rw http.ResponseWriter, req *http.Request) {
 	io.WriteString(rw, "hello, world!\n")
 }
 
-func GetLocUpdateResponse(id string, otherPlayers []string) string {
-
+func GetLocUpdateResponse(id string, otherPlayers []string) (LocUpdateResponse, error) {
+	var locUpdateResponse LocUpdateResponse
 	// info about other players
 	oids := make([]bson.ObjectId, len(otherPlayers))
 	for i := range otherPlayers {
@@ -110,7 +29,7 @@ func GetLocUpdateResponse(id string, otherPlayers []string) string {
 
 	if err != nil {
 		log.Printf("JSON marshaling failed: %s", err)
-		return ""
+		return locUpdateResponse, err
 	}
 
 	// DB REQUEST : other players info
@@ -126,7 +45,7 @@ func GetLocUpdateResponse(id string, otherPlayers []string) string {
 		{"$lookup": bson.M{"from": "spots", "localField": "_id", "foreignField": "gameid", "as": "spots"}}}).One(&game)
 	if err != nil {
 		log.Printf("spots JSON marshaling failed: %s", err)
-		return ""
+		return locUpdateResponse, err
 	}
 	// -- end
 
@@ -145,7 +64,7 @@ func GetLocUpdateResponse(id string, otherPlayers []string) string {
 
 	if err != nil {
 		log.Printf("spots JSON marshaling failed: %s", err)
-		return ""
+		return locUpdateResponse, err
 	}
 	// -- end
 
@@ -154,7 +73,7 @@ func GetLocUpdateResponse(id string, otherPlayers []string) string {
 	err = c_checkins.Find(bson.M{"playerid": bson.ObjectIdHex(id)}).All(&checkins)
 	if err != nil {
 		log.Printf("checkins JSON marshaling failed: %s", err)
-		return ""
+		return locUpdateResponse, err
 	}
 	// -- end
 
@@ -176,15 +95,16 @@ func GetLocUpdateResponse(id string, otherPlayers []string) string {
 		spots = append(spots, spot)
 	}
 
-	locUpdateResponse := LocUpdateResponse{You: thisPlayer, Players: players, Spots: spots}
+	locUpdateResponse = LocUpdateResponse{You: thisPlayer, Players: players, Spots: spots}
 
-	data, err := json.Marshal(locUpdateResponse)
-	if err != nil {
-		log.Printf("JSON marshaling failed: %s", err)
-		return ""
-	}
+	// data, err := json.Marshal(locUpdateResponse)
+	// if err != nil {
+	// 	log.Printf("JSON marshaling failed: %s", err)
+	// 	return ""
+	// }
 
-	return string(data)
+	// return string(data)
+	return locUpdateResponse, nil
 }
 
 // GetActiveGame gets active game
@@ -315,6 +235,8 @@ func fromSpotsToDict(s []Spot) map[string]bool {
 	return res
 }
 
+type HandlerFunc func(http.ResponseWriter, *http.Request)
+
 func corsHandler(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -324,32 +246,4 @@ func corsHandler(f http.HandlerFunc) http.HandlerFunc {
 		http.HandlerFunc(f).ServeHTTP(w, r)
 
 	}
-}
-
-func NewApiServer() {
-	// new server sents events server
-	broker := NewSSEServer()
-
-	http.Handle("/hello", corsHandler(HelloServer))
-	http.HandleFunc("/version", func(rw http.ResponseWriter, req *http.Request) {
-		io.WriteString(rw, BuildStamp)
-	})
-	http.Handle("/game", corsHandler(GetActiveGame))
-	http.Handle("/player/locupdate", corsHandler(LocUpdate))
-	http.Handle("/spot/checkin", corsHandler(CheckinSpot))
-	http.Handle("/events", broker)
-
-	go func() {
-		for {
-			time.Sleep(time.Second * 2)
-			// eventString := fmt.Sprintf("the time is %v", time.Now())
-			// eventString := GetLocUpdateResponse(broker.GetConnectedPlayers())
-			log.Println("Sending notification!")
-			broker.Notifier <- []byte("notify")
-
-		}
-	}()
-
-	log.Print("Open URL http://localhost:3000/ in your browser.")
-	go log.Fatal("HTTP server error: ", http.ListenAndServe(":3000", nil))
 }

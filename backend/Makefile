@@ -1,4 +1,4 @@
-TAG = 1.0
+TAG = 1.1
 PREFIX = gcr.io/boomer-1470064436690/boomer
 
 build:

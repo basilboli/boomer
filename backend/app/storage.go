@@ -2,10 +2,9 @@ package app
 
 import (
 	"fmt"
+	"gopkg.in/mgo.v2"
 	"log"
 	"os"
-
-	"gopkg.in/mgo.v2"
 )
 
 const (
@@ -20,6 +19,19 @@ var (
 	username string
 	password string
 )
+
+var c_games *mgo.Collection
+var c_spots *mgo.Collection
+var c_players *mgo.Collection
+var c_checkins *mgo.Collection
+
+func init() {
+	InitDB()
+	c_games = DB.C("games")
+	c_spots = DB.C("spots")
+	c_players = DB.C("players")
+	c_checkins = DB.C("checkins")
+}
 
 func Config() {
 

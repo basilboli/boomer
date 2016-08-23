@@ -6,8 +6,6 @@ metadata:
     app: backend
     role: server
 spec:
-  type: LoadBalancer
-  loadBalancerIP: 104.155.123.156
   ports:  
   - port: 3000
     targetPort: backend

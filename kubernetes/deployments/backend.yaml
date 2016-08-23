@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: backend
+        role: server
     spec:        
       containers:
       - image: gcr.io/boomer-1470064436690/boomer:1.0

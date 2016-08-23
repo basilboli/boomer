@@ -4,15 +4,17 @@ import (
 	"log"
 	"net/http"
 
-	"bitbucket.org/basilboli/boomer/server/websockets/ws"
+	"bitbucket.org/basilboli/boomer/playground/websockets/ws"
 )
 
 func main() {
 	log.SetFlags(log.Lshortfile)
 
 	// websocket server
-	server := ws.NewServer("/entry")
+	server := ws.NewWebsocketServer("/ws")
 	go server.Listen()
 
+	// static files
+	http.Handle("/", http.FileServer(http.Dir("webroot")))
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }

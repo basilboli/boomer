@@ -1,8 +1,12 @@
 {
-	"ImportPath": "bitbucket.org/basilboli/boomer/server",
+	"ImportPath": "bitbucket.org/basilboli/boomer/backend",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v62",
 	"Deps": [
+		{
+			"ImportPath": "golang.org/x/net/websocket",
+			"Rev": "2a35e686583654a1b89ca79c4ac78cb3d6529ca3"
+		},
 		{
 			"ImportPath": "gopkg.in/mgo.v2",
 			"Comment": "r2016.02.04-1-gb6e2fa3",

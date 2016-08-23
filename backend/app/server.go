@@ -1,6 +1,7 @@
-package ws
+package app
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -9,35 +10,29 @@ import (
 
 // Chat server.
 type Server struct {
-	pattern     string
-	messages    []*Message
-	clients     map[int]*Client
-	addCh       chan *Client
-	delCh       chan *Client
-	locUpdateCh chan *Message
-	sendAllCh   chan *Message
-	doneCh      chan bool
-	errCh       chan error
+	pattern   string
+	clients   map[int]*Client
+	addCh     chan *Client
+	delCh     chan *Client
+	sendAllCh chan *LocUpdateResponse
+	doneCh    chan bool
+	errCh     chan error
 }
 
-// Create new chat server.
-func NewServer(pattern string) *Server {
-	messages := []*Message{}
+// Create new  server.
+func NewWebsocketServer(pattern string) *Server {
 	clients := make(map[int]*Client)
 	addCh := make(chan *Client)
 	delCh := make(chan *Client)
-	locUpdateCh := make(chan *Message)
-	sendAllCh := make(chan *Message)
+	sendAllCh := make(chan *LocUpdateResponse)
 	doneCh := make(chan bool)
 	errCh := make(chan error)
 
 	return &Server{
 		pattern,
-		messages,
 		clients,
 		addCh,
 		delCh,
-		locUpdateCh,
 		sendAllCh,
 		doneCh,
 		errCh,
@@ -52,12 +47,8 @@ func (s *Server) Del(c *Client) {
 	s.delCh <- c
 }
 
-func (s *Server) SendAll(msg *Message) {
+func (s *Server) SendAll(msg *LocUpdateResponse) {
 	s.sendAllCh <- msg
-}
-
-func (s *Server) SendLocUpdates(msg *Message) {
-	s.locUpdateCh <- msg
 }
 
 func (s *Server) Done() {
@@ -68,13 +59,7 @@ func (s *Server) Err(err error) {
 	s.errCh <- err
 }
 
-func (s *Server) sendPastMessages(c *Client) {
-	for _, msg := range s.messages {
-		c.Write(msg)
-	}
-}
-
-func (s *Server) sendAll(msg *Message) {
+func (s *Server) sendAll(msg *LocUpdateResponse) {
 	for _, c := range s.clients {
 		c.Write(msg)
 	}
@@ -94,8 +79,13 @@ func (s *Server) Listen() {
 				s.errCh <- err
 			}
 		}()
-
-		client := NewClient(ws, s)
+		log.Println(ws.Request())
+		access_token := ws.Request().URL.Query().Get("access_token")
+		if access_token == "" {
+			s.errCh <- errors.New("emit macho dwarf: elf header corrupted")
+			return
+		}
+		client := NewClient(ws, s, access_token)
 		s.Add(client)
 		client.Listen()
 	}
@@ -110,7 +100,6 @@ func (s *Server) Listen() {
 			log.Println("Added new client")
 			s.clients[c.id] = c
 			log.Println("Now", len(s.clients), "clients connected.")
-			s.sendPastMessages(c)
 
 		// del a client
 		case c := <-s.delCh:
@@ -120,23 +109,8 @@ func (s *Server) Listen() {
 		// broadcast message for all clients
 		case msg := <-s.sendAllCh:
 			log.Println("Send all:", msg)
-			s.messages = append(s.messages, msg)
 			s.sendAll(msg)
 			// broadcast message for all clients
-
-		case msg := <-s.locUpdateCh:
-			log.Println("Sending loc updates of everyone.")
-			log.Println(msg)
-
-			// send all players
-			players := make([]*Player, 0, len(s.clients))
-
-			for _, c := range s.clients {
-				player := &Player{c.name, c.lat, c.lng}
-				players = append(players, player)
-			}
-			msg.Players = players
-			s.sendAll(msg)
 
 		case err := <-s.errCh:
 			log.Println("Error:", err.Error())
@@ -145,4 +119,13 @@ func (s *Server) Listen() {
 			return
 		}
 	}
+}
+
+func (s *Server) GetConnectedPlayers() []string {
+	var ids []string
+	for _, c := range s.clients {
+		ids = append(ids, c.Token)
+	}
+
+	return ids
 }
