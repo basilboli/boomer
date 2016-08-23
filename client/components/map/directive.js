@@ -28,9 +28,9 @@ app.directive( 'map', function( PlayersLayer, UserMarker, MapService, GamePolygo
 
             UserMarker.init( $scope.map );
 
-            MapService.getGame().then( function() {
-                GamePolygon.init( $scope.map );
-            } );
+            GamePolygon.init( $scope.map );
+
+            UserMarker.update( AppModel.user );
         }
     };
 

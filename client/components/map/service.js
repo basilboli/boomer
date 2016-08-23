@@ -17,9 +17,15 @@ app.factory( 'MapService', function( $http, AppModel, PlayersLayer, SpotsLayer )
                 console.log( err );
             } );
 
-            // this.socket = new WebSocket( "ws://104.155.123.156:3000/entry" );
-            // this.socket.onopen = event => cb();
-            // this.socket.onmessage = this.onMessage.bind( this );
+            this.socket = new WebSocket( "ws://api.boomer.im/events" );
+
+            this.socket.onopen = function( event ) {
+                console.log( event );
+            };
+
+            this.socket.onmessage = function( event ) {
+                console.log( event );
+            };
         },
 
         getGame: function() {

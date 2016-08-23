@@ -9,7 +9,7 @@ app.config( function( $routeProvider, $locationProvider ) {
     } ).when( '/map', {
         template: '<map></map>',
         resolve: {
-            preload: function( AppModel, $q ) {
+            preload: function( AppModel, $q, Game ) {
                 var deferred = $q.defer();
 
                 AppModel.loader.show = true;
@@ -27,7 +27,10 @@ app.config( function( $routeProvider, $locationProvider ) {
                     }
                 );
 
-                return deferred.promise;
+                return $q.all( [
+                    deferred.promise,
+                    Game.start()
+                ] );
             }
         }
     } ).otherwise( {
