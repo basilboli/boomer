@@ -16,7 +16,7 @@ Currently active game. During alpha we have one active game at a time.
 
 # API
 
-Note : every endpoint is labeled as server sent events (SSE) or classic REST API (POST|GET).
+Note : every endpoint is labeled as websockets (ws) or classic REST API (POST|GET).
 
 - (GET) v1/game  - get active game showing game polygon
 
@@ -68,19 +68,21 @@ Response
 
 ```
 
-- (Server Sent Events)  v1/events?playerid=57ab1dafbab09c24b9eefe12  - streaming  other players, all spots, checked spots by player and nearby spots within 50 meters
+- (Web Sockets)  v1/ws?access_token=57ab1dafbab09c24b9eefe12  - streaming  other players, all spots, checked spots by player and nearby spots within 50 meters
+
+access_token is playerid now and will be replaced with true jwt as soon as it's implemented backed side.
 
 # PS1 : you can't see other player ids, this is a minimal foolproof, at least at the beginning
 # PS2 : to checkin the spot you need a spotid, the trick is that you see only the ids for nearby spots so you can checkin them. 
 
-Request
+Request (ws) : user pushes his coordinates 
 ```
 
-v1/events?playerid=XXXXXXXX
+{"coordinates": [lng,lat]}
 
 ```
 
-Response (SSE)
+Response (ws) : in response he gets updates
 ```
 {
   "players": [
