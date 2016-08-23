@@ -16,6 +16,8 @@ Currently active game. During alpha we have one active game at a time.
 
 # API
 
+# api.boomer.im
+
 Note : every endpoint is labeled as websockets (ws) or classic REST API (POST|GET).
 
 - (GET) v1/game  - get active game showing game polygon
