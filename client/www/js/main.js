@@ -81,13 +81,13 @@ app.factory( 'Game', function( $http, $q, $timeout, AppModel, UserMarker, Player
     return {
 
         start: function() {
-            return $q.all([
+            return $q.all( [
                 this.locupdate(),
                 this.getGame()
-            ]);
+            ] );
         },
 
-        locupdate: function(  ){
+        locupdate: function() {
             return $http.post( 'http://api.boomer.im/player/locupdate', {
                 name: "Damien",
                 coordinates: [ AppModel.user.position.longitude, AppModel.user.position.latitude ]
@@ -114,17 +114,27 @@ app.factory( 'Game', function( $http, $q, $timeout, AppModel, UserMarker, Player
         },
 
         watchLocation: function() {
-            navigator.geolocation.getCurrentPosition(
+
+            this.geolocationWatcher = navigator.geolocation.watchPosition(
                 this.onGetUserLocation.bind( this ),
                 this.onGeolocationError.bind( this ), {
                     enableHighAccuracy: true,
                     timeout: 5000
                 }
             );
+
+            // navigator.geolocation.getCurrentPosition(
+            //     this.onGetUserLocation.bind( this ),
+            //     this.onGeolocationError.bind( this ), {
+            //         enableHighAccuracy: true,
+            //         timeout: 5000
+            //     }
+            // );
         },
 
         onGeolocationError: function( err ) {
-            $timeout( this.watchLocation.bind( this ), 3000 );
+            console.log( err );
+            // $timeout( this.watchLocation.bind( this ), 3000 );
         },
 
         onGetUserLocation: function( result ) {
@@ -139,7 +149,7 @@ app.factory( 'Game', function( $http, $q, $timeout, AppModel, UserMarker, Player
 
             this.sendPosition();
 
-            $timeout( this.watchLocation.bind( this ), 3000 );
+            // $timeout( this.watchLocation.bind( this ), 3000 );
         },
 
         getGame: function() {
