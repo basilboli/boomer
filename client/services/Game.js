@@ -2,37 +2,80 @@ app.factory( 'Game', function( $http, $q, $timeout, AppModel, UserMarker, Player
 
     return {
 
-        start: function() {
-            return $q.all( [
-                this.locupdate(),
-                this.getGame()
-            ] );
+        start: function( deferred ) {
+            navigator.geolocation.getCurrentPosition(
+                function( position ) {
+
+                    AppModel.user.position.latitude = position.coords.latitude;
+                    AppModel.user.position.longitude = position.coords.longitude;
+
+                    this.createPlayer().then(
+                        function( resp ) {
+                            AppModel.user.playerid = resp.data.playerid;
+                            return this.getGame();
+                        }.bind( this ),
+                        function( err ) {
+                            return $q.reject();
+                        }.bind( this )
+                    ).then(
+                        function() {
+                            return this.initSocket();
+                        }.bind( this ),
+                        function( err ) {
+                            return $q.reject();
+                        }
+                    ).then(
+                        function() {
+                            this.watchLocation();
+                            deferred.resolve();
+                            AppModel.loader.show = false;
+                        }.bind( this ),
+                        function( err ) {
+                            return $q.reject();
+                        }
+                    );
+
+                }.bind( this ),
+                function( err ) {
+                    console.log( err );
+                }.bind( this )
+            );
         },
 
-        locupdate: function() {
+        createPlayer: function() {
             return $http.post( 'http://api.boomer.im/player/locupdate', {
                 name: "Damien",
                 coordinates: [ AppModel.user.position.longitude, AppModel.user.position.latitude ]
-            } ).then( function( resp ) {
-                AppModel.user.playerid = resp.data.playerid;
-                this.initSocket();
-            }.bind( this ), function( err ) {
-                console.log( err );
             } );
         },
 
         initSocket: function() {
+            var deferred = $q.defer();
+
             this.socket = new WebSocket( "ws://api.boomer.im/events?access_token=" + AppModel.user.playerid );
 
             this.socket.onopen = function( event ) {
-                this.watchLocation();
-            }.bind( this )
+                console.log( 'WebSocket opened' );
+                deferred.resolve();
+            }.bind( this );
 
             this.socket.onmessage = this.onMessage.bind( this );
 
             this.socket.onerreor = function( err ) {
                 console.log( err );
             }.bind( this )
+
+            this.socket.onclose = function( closeEvent ) {
+                console.log( closeEvent );
+                if( closeEvent.code === 1000 ){
+                    console.log( 'WebSocket well closed.' );
+                } else {
+                    console.log( 'WebSocket problem. Restarting ...' );
+                    this.initSocket();
+                }
+            }.bind( this );
+
+            return deferred.promise;
         },
 
         watchLocation: function() {

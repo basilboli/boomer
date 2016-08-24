@@ -10,27 +10,13 @@ app.config( function( $routeProvider, $locationProvider ) {
         template: '<map></map>',
         resolve: {
             preload: function( AppModel, $q, Game ) {
-                var deferred = $q.defer();
-
                 AppModel.loader.show = true;
 
-                navigator.geolocation.getCurrentPosition(
-                    function( result ) {
-                        AppModel.user.position.latitude = result.coords.latitude;
-                        AppModel.user.position.longitude = result.coords.longitude;
-                        AppModel.loader.show = false;
-                        navigator.vibrate( [ 200, 100, 200 ] );
-                        deferred.resolve();
-                    },
-                    function( err ) {
-                        console.log( err );
-                    }
-                );
+                var deferred = $q.defer();
 
-                return $q.all( [
-                    deferred.promise,
-                    Game.start()
-                ] );
+                Game.start( deferred );
+
+                return deferred.promise;
             }
         }
     } ).otherwise( {
