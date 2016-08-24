@@ -6,6 +6,9 @@ app.config( function( $routeProvider, $locationProvider ) {
     } ).when( '/login', {
         controller: "loginCtrl",
         templateUrl: 'templates/login/template.html'
+    } ).when( '/game-type-choice', {
+        controller: "gameTypeChoiceCtrl",
+        templateUrl: 'templates/game-type-choice/template.html'
     } ).when( '/map', {
         template: '<map></map>',
         resolve: {
@@ -236,6 +239,22 @@ app.factory( 'Game', function( $http, $q, $timeout, AppModel, UserMarker, Player
 
 } );
 
+app.controller( 'gameTypeChoiceCtrl', function( $scope, AppModel, $location, GameChoiceService ) {
+
+    $scope.onChoiceSingle = function() {
+        $location.path( '/map' );
+    }
+
+} );
+
+app.factory( 'GameChoiceService', function( $http, AppModel ) {
+
+    return {
+
+    };
+
+} );
+
 app.directive( 'loader', function() {
 
     return {
@@ -249,16 +268,7 @@ app.directive( 'loader', function() {
 app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
 
     $scope.onConnect = function() {
-        $location.path( '/map' );
-    }
-
-} );
-
-app.directive( 'login', function() {
-
-    return {
-        replace: true,
-        templateUrl: 'templates/login/template.html'
+        $location.path( '/game-type-choice' );
     }
 
 } );

@@ -6,6 +6,9 @@ app.config( function( $routeProvider, $locationProvider ) {
     } ).when( '/login', {
         controller: "loginCtrl",
         templateUrl: 'templates/login/template.html'
+    } ).when( '/game-type-choice', {
+        controller: "gameTypeChoiceCtrl",
+        templateUrl: 'templates/game-type-choice/template.html'
     } ).when( '/map', {
         template: '<map></map>',
         resolve: {

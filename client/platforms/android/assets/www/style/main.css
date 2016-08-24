@@ -177,6 +177,25 @@ input[type=password]:-webkit-autofill {
   color: white;
   z-index: 10000;
 }
+#game-type-choice {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 20px;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+#game-type-choice .type {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  background: #F5F5F5;
+  text-align: center;
+  margin: 15px 0;
+}
 html,
 body,
 main {
