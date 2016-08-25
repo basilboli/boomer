@@ -1,7 +1,7 @@
 app.controller( 'gameTypeChoiceCtrl', function( $scope, AppModel, $location, GameChoiceService ) {
 
     $scope.onChoiceSingle = function() {
-        $location.path( '/map' );
+        $location.path( '/single-game' );
     }
 
 } );

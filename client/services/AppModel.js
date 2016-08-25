@@ -2,6 +2,8 @@ app.factory( 'AppModel', function() {
 
     return {
 
+        followGeolocation: false,
+
         user: {
             position: {}
         },

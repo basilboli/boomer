@@ -2,7 +2,6 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
 
     return {
         map: null,
-        marker: null,
         areaOptions: {
             stroke: false,
             fillOpacity: 0.3,
@@ -15,14 +14,15 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
             radius: 8,
             fillColor: "#00AEEF"
         },
+        headingIcon: L.icon( {
+            iconUrl: 'libs/images/compass.svg',
+            iconSize: [ 48, 48 ],
+            iconAnchor: [ 24, 24 ],
+        } ),
 
         init: function( map ) {
             this.map = map;
-            this.headingIcon = L.icon( {
-                iconUrl: 'libs/images/compass.svg',
-                iconSize: [ 48, 48 ],
-                iconAnchor: [ 24, 24 ],
-            } );
+            this.marker = null;
         },
 
         setPosition: function( position ) {
@@ -57,7 +57,7 @@ app.factory( 'UserMarker', function( $http, AppModel ) {
             this.watchCompass();
         },
 
-        watchCompass(){
+        watchCompass() {
             if ( navigator.compass ) {
                 navigator.compass.watchHeading( function( heading ) {
                     this.setHeading( heading.magneticHeading );

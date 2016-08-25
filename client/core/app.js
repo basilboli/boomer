@@ -9,15 +9,16 @@ app.config( function( $routeProvider, $locationProvider ) {
     } ).when( '/game-type-choice', {
         controller: "gameTypeChoiceCtrl",
         templateUrl: 'templates/game-type-choice/template.html'
-    } ).when( '/map', {
-        template: '<map></map>',
+    } ).when( '/single-game', {
+        controller: "singleGameCtrl",
+        templateUrl: 'templates/single-game/template.html',
         resolve: {
-            preload: function( AppModel, $q, Game ) {
+            preload: function( AppModel, $q, GameService ) {
                 AppModel.loader.show = true;
 
                 var deferred = $q.defer();
 
-                Game.start( deferred );
+                GameService.start( deferred );
 
                 return deferred.promise;
             }
