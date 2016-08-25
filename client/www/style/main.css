@@ -209,20 +209,24 @@ input[type=password]:-webkit-autofill {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: white;
+  color: white;
   border-radius: 50%;
-  color: #333333;
+  background: #00AEEF;
   font-size: 26px;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.2);
 }
-#follow-me.active {
-  color: #00AEEF;
-}
 #follow-me .icon-crosshairs {
-  margin: 6px 0 0 0;
+  font-size: 26px;
+  height: 30px;
+  line-height: 30px;
+}
+#follow-me .icon-crosshairs:before {
+  font-size: 26px;
+  height: 30px;
+  line-height: 30px;
 }
 html,
 body,

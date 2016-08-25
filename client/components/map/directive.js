@@ -1,4 +1,4 @@
-app.directive( 'map', function( PlayersLayer, UserMarker, MapService, GamePolygon, SpotsLayer, AppModel ) {
+app.directive( 'map', function( PlayersLayer, UserMarker, GamePolygon, SpotsLayer, AppModel ) {
 
     return {
         restrict: 'E',

@@ -111,6 +111,9 @@ a img {
 :focus {
   outline: 0;
 }
+.shadow {
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.2);
+}
 button {
   line-height: 40px;
   padding: 0 20px;
@@ -195,6 +198,35 @@ input[type=password]:-webkit-autofill {
   background: #F5F5F5;
   text-align: center;
   margin: 15px 0;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+#follow-me {
+  width: 60px;
+  height: 60px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  color: white;
+  border-radius: 50%;
+  background: #00AEEF;
+  font-size: 26px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.2);
+}
+#follow-me .icon-crosshairs {
+  font-size: 26px;
+  height: 30px;
+  line-height: 30px;
+}
+#follow-me .icon-crosshairs:before {
+  font-size: 26px;
+  height: 30px;
+  line-height: 30px;
 }
 html,
 body,

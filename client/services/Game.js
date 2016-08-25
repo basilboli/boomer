@@ -113,9 +113,7 @@ app.factory( 'GameService', function( $http, $q, $timeout, AppModel, UserMarker,
 
             UserMarker.update( AppModel.user );
 
-            if ( AppModel.map && AppModel.followGeolocation ) {
-                AppModel.map.setView( [ AppModel.user.position.latitude, AppModel.user.position.longitude ] );
-            }
+            // AppModel.map.setView( [ AppModel.user.position.latitude, AppModel.user.position.longitude ] );
 
             this.sendPosition();
 
@@ -159,12 +157,14 @@ app.factory( 'GameService', function( $http, $q, $timeout, AppModel, UserMarker,
 
         checkSpot: function( spot ) {
             AppModel.loader.show = true;
-            $http.post( 'http://boomer.im:3000/spot/checkin', {
+
+            return $http.post( 'http://api.boomer.im/spot/checkin', {
                 "playerid": AppModel.user.playerid,
                 "spotid": spot.spotid
             } ).then(
                 function( resp ) {
                     AppModel.loader.show = false;
+                    spot.checked = true;
                 },
                 function( err ) {
                     console.log( err );

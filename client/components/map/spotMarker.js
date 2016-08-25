@@ -1,4 +1,4 @@
-app.directive( 'spotMarker', function( MapService ) {
+app.directive( 'spotMarker', function( GameService, SpotsLayer, AppModel ) {
 
     return {
         restrict: 'E',
@@ -14,7 +14,11 @@ app.directive( 'spotMarker', function( MapService ) {
             } );
 
             $scope.marker.on( 'click', function( e ) {
-                if( $scope.spot.nearby && !$scope.spot.checked ) MapService.checkSpot( $scope.spot );
+                if ( $scope.spot.nearby && !$scope.spot.checked ) {
+                    GameService.checkSpot( $scope.spot ).then( function() {
+                        SpotsLayer.update( AppModel.spots );
+                    } );
+                }
             } );
 
             $scope.marker.addTo( $scope.layer );
