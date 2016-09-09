@@ -1,19 +1,3 @@
-
-# Dictionary
-
-- Game
-
-- Player
-
-User of the game.
-
-- Spot
-
-- Active game
-
-Currently active game. During alpha we have one active game at a time.
-
-
 # API
 
 # api.boomer.im
