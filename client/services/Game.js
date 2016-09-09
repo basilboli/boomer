@@ -1,11 +1,10 @@
-app.factory( 'Game', function( $http, $q, $timeout, AppModel, UserMarker, PlayersLayer, SpotsLayer ) {
+app.factory( 'GameService', function( $http, $q, $timeout, AppModel, UserMarker, PlayersLayer, SpotsLayer ) {
 
     return {
 
         start: function( deferred ) {
             navigator.geolocation.getCurrentPosition(
                 function( position ) {
-
                     AppModel.user.position.latitude = position.coords.latitude;
                     AppModel.user.position.longitude = position.coords.longitude;
 
@@ -67,7 +66,7 @@ app.factory( 'Game', function( $http, $q, $timeout, AppModel, UserMarker, Player
 
             this.socket.onclose = function( closeEvent ) {
                 console.log( closeEvent );
-                if( closeEvent.code === 1000 ){
+                if ( closeEvent.code === 1000 ) {
                     console.log( 'WebSocket well closed.' );
                 } else {
                     console.log( 'WebSocket problem. Restarting ...' );
@@ -76,6 +75,10 @@ app.factory( 'Game', function( $http, $q, $timeout, AppModel, UserMarker, Player
             }.bind( this );
 
             return deferred.promise;
+        },
+
+        stopWatchGeolocation: function() {
+            navigator.geolocation.clearWatch( this.geolocationWatcher );
         },
 
         watchLocation: function() {
@@ -110,7 +113,7 @@ app.factory( 'Game', function( $http, $q, $timeout, AppModel, UserMarker, Player
 
             UserMarker.update( AppModel.user );
 
-            //$scope.map.setView( [ AppModel.user.position.latitude, AppModel.user.position.longitude ] );
+            // AppModel.map.setView( [ AppModel.user.position.latitude, AppModel.user.position.longitude ] );
 
             this.sendPosition();
 
@@ -154,12 +157,14 @@ app.factory( 'Game', function( $http, $q, $timeout, AppModel, UserMarker, Player
 
         checkSpot: function( spot ) {
             AppModel.loader.show = true;
-            $http.post( 'http://boomer.im:3000/spot/checkin', {
+
+            return $http.post( 'http://api.boomer.im/spot/checkin', {
                 "playerid": AppModel.user.playerid,
                 "spotid": spot.spotid
             } ).then(
                 function( resp ) {
                     AppModel.loader.show = false;
+                    spot.checked = true;
                 },
                 function( err ) {
                     console.log( err );

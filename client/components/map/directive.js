@@ -1,10 +1,12 @@
-app.directive( 'map', function( PlayersLayer, UserMarker, MapService, GamePolygon, SpotsLayer, AppModel ) {
+app.directive( 'map', function( PlayersLayer, UserMarker, GamePolygon, SpotsLayer, AppModel ) {
 
     return {
         restrict: 'E',
         replace: true,
         templateUrl: 'templates/map/template.html',
         link: function( $scope, elements ) {
+
+            $scope.model = AppModel;
 
             L.mapbox.accessToken = 'pk.eyJ1IjoiZGFtbW1pZW4iLCJhIjoiY2lqeDRsc3NzMDAxd3Zua3AxNGg3N2g3MyJ9.VB6ZqQCOi9LMnR2ojeOHxw';
 
@@ -17,6 +19,8 @@ app.directive( 'map', function( PlayersLayer, UserMarker, MapService, GamePolygo
                 minZoom: 10,
                 maxZoom: 18
             } ).setView( [ AppModel.user.position.latitude, AppModel.user.position.longitude ], 13 );
+
+            AppModel.map = $scope.map;
 
             // $scope.map.on( 'zoomend', function( e ) {
             //     console.log( $scope.map.getZoom() );
