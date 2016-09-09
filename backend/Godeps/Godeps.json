@@ -1,31 +1,25 @@
 {
 	"ImportPath": "bitbucket.org/basilboli/boomer/backend",
-	"GoVersion": "go1.6",
+	"GoVersion": "go1.7",
 	"GodepVersion": "v62",
 	"Deps": [
 		{
-			"ImportPath": "golang.org/x/net/websocket",
-			"Rev": "2a35e686583654a1b89ca79c4ac78cb3d6529ca3"
+			"ImportPath": "github.com/braintree/manners",
+			"Comment": "0.4.0-15-g82a8879",
+			"Rev": "82a8879fc5fd0381fa8b2d8033b19bf255252088"
 		},
 		{
-			"ImportPath": "gopkg.in/mgo.v2",
-			"Comment": "r2016.02.04-1-gb6e2fa3",
-			"Rev": "b6e2fa371e64216a45e61072a96d4e3859f169da"
+			"ImportPath": "github.com/dgrijalva/jwt-go",
+			"Comment": "v2.7.0",
+			"Rev": "268038b363c7a8d7306b8e35bf77a1fde4b0c402"
 		},
 		{
-			"ImportPath": "gopkg.in/mgo.v2/bson",
-			"Comment": "r2016.02.04-1-gb6e2fa3",
-			"Rev": "b6e2fa371e64216a45e61072a96d4e3859f169da"
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Rev": "351dc6a5bf92a5f2ae22fadeee08eb6a45aa2d93"
 		},
 		{
-			"ImportPath": "gopkg.in/mgo.v2/internal/sasl",
-			"Comment": "r2016.02.04-1-gb6e2fa3",
-			"Rev": "b6e2fa371e64216a45e61072a96d4e3859f169da"
-		},
-		{
-			"ImportPath": "gopkg.in/mgo.v2/internal/scram",
-			"Comment": "r2016.02.04-1-gb6e2fa3",
-			"Rev": "b6e2fa371e64216a45e61072a96d4e3859f169da"
+			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Rev": "351dc6a5bf92a5f2ae22fadeee08eb6a45aa2d93"
 		}
 	]
 }

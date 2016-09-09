@@ -1,26 +1,23 @@
 package app
 
-import (
-	"fmt"
-	"gopkg.in/mgo.v2/bson"
-	"io"
-	"log"
-	"net/http"
-)
-
-var BuildStamp = "No BuildStamp Provided"
-
-func init() {
-	log.Printf("App BuildStamp: %s\n", BuildStamp)
-}
-
-type BoomerMessageType int
+import "gopkg.in/mgo.v2/bson"
 
 const (
-	MAX_DISTANCE                       = 50 // in meters
-	LocUpdateMessage BoomerMessageType = iota
-	ChatMessage
+	UserLocUpdateEventType = "user_loc_update"
+	GameUpdateEventType    = "game_update"
+	GameOverEventType      = "game_over"
 )
+
+type ActivityStatus int
+
+const (
+	Ongoing ActivityStatus = iota
+	Done
+)
+
+type Event interface {
+	Type() string
+}
 
 type CoordType float64
 
@@ -42,116 +39,112 @@ type Polygon struct {
 }
 
 type Spot struct {
-	ID       bson.ObjectId `bson:"_id,omitempty" json:"spotid,omitempty"`
-	GameId   bson.ObjectId `bson:"gameid,omitempty" json:"-"`
-	Name     string        `bson:"name" json:"name,omitempty"`
-	Checked  bool          `bson:"checked" json:"checked"`
-	Location Point         `bson:"location" json:"location"`
-	NearBy   bool          `bson:"nearby" json:"nearby"`
+	ID           bson.ObjectId `bson:"_id,omitempty" json:"spotid,omitempty"`
+	GameId       bson.ObjectId `bson:"gameid,omitempty" json:"-"`
+	Name         string        `bson:"name" json:"name,omitempty"`
+	Geometry     Point         `bson:"geometry" json:"geometry"`
+	Created      int64         `bson:"created,omitempty" json:"created"`
+	LastModified int64         `bson:"lastmodified,omitempty" json:"lastmodified"`
+}
+
+type UserSpot struct {
+	Spot
+	Checked bool `bson:"checked" json:"checked"`
+	NearBy  bool `bson:"nearby" json:"nearby"`
 }
 
 type Game struct {
-	ID       bson.ObjectId `bson:"_id,omitempty" json:"-"`
-	Name     string        `bson:"name" json:"-"`
-	Active   bool          `bson:"active" json:"-"`
-	Geometry Polygon       `bson:"geometry" json:"geometry"`
-	Spots    []Spot        `bson:"spots" json:"spots,omitempty"`
+	ID           bson.ObjectId `bson:"_id,omitempty" json:"-"`
+	Name         string        `bson:"name" json:"-"`
+	Geometry     Polygon       `bson:"geometry" json:"geometry"`
+	Spots        []Spot        `bson:"spots" json:"spots,omitempty"`
+	Created      int64         `bson:"created,omitempty" json:"created"`
+	LastModified int64         `bson:"lastmodified,omitempty" json:"lastmodified"`
 }
 
-type Player struct {
-	ID          bson.ObjectId `bson:"_id" json:"playerid,omitempty"`
-	Name        string        `bson:"name" json:"name"`
-	Coordinates Coordinate    `json:"coordinates" bson:"coordinates"`
+type UserGame struct {
+	Game
+	Active bool `bson:"active" json:"-"`
 }
 
-type Checkin struct {
-	ID       bson.ObjectId `bson:"_id,omitempty" json:"checkinid"`
-	SpotId   bson.ObjectId `bson:"spotid,omitempty" json:"spotid"`
-	PlayerId bson.ObjectId `bson:"playerid,omitempty" json:"playerid"`
+type Activity struct {
+	ID      bson.ObjectId  `bson:"_id,omitempty" json:"activityid"`
+	GameId  bson.ObjectId  `bson:"gameid,omitempty" json:"gameid"`
+	UserId  bson.ObjectId  `bson:"userid,omitempty" json:"userid"`
+	Started int64          `bson:"started,omitempty" json:"started"`
+	Ended   int64          `bson:"ended,omitempty" json:"ended"`
+	Status  ActivityStatus `bson:"status" json:"status"`
 }
 
-type LocUpdateRequest struct {
+type User struct {
+	ID           bson.ObjectId `bson:"_id" json:"userid,omitempty"`
+	Name         string        `bson:"name" json:"name"`
+	Email        string        `bson:"email" json:"-"`
+	PasswordHash string        `bson:"password_hash" json:"-"`
+	Coordinates  Coordinate    `json:"coordinates" bson:"coordinates"`
+	Created      int64         `bson:"created,omitempty" json:"created"`
+	LastModified int64         `bson:"lastmodified,omitempty" json:"lastmodified"`
+}
+
+type UserInfo struct {
+	ID             bson.ObjectId `json:"userid,omitempty"`
+	Name           string        `json:"name"`
+	Email          string        `json:"email"`
+	Coordinates    Coordinate    `json:"coordinates" `
+	Created        int64         `json:"created"`
+	HasOngoingGame bool          `json:"has_ongoing_game"`
+	OngoingGame    Game          `json:"ongoing_game,omitempty"`
+}
+
+type UserLoginInfo struct {
+	Name        string     `bson:"name" json:"name"`
+	Email       string     `bson:"email" json:"email"`
+	Password    string     `bson:"password" json:"password"`
 	Coordinates Coordinate `json:"coordinates" bson:"coordinates"`
 }
 
-type LocUpdateResponse struct {
-	You     Player   `json:"you"`
-	Players []Player `json:"players"`
-	Spots   []Spot   `json:"spots"`
+type Checkin struct {
+	ID         bson.ObjectId `bson:"_id,omitempty" json:"checkinid"`
+	SpotId     bson.ObjectId `bson:"spotid,omitempty" json:"spotid"`
+	ActivityId bson.ObjectId `bson:"activityid,omitempty" json:"activityid"`
+	GameId     bson.ObjectId `bson:"gameid,omitempty" json:"gameid"`
+	UserId     bson.ObjectId `bson:"userid,omitempty" json:"userid"`
+	Created    int64         `bson:"created,omitempty" json:"created"`
 }
 
-// Player returns a player for a given id.
-func GetPlayer(id string) (*Player, error) {
+// ----- EVENTS ------
 
-	var p Player
-	err := c_players.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&p)
-	if err != nil {
-		log.Printf("Problem finding player by id %s: %s", id, err)
-		return nil, err
-	}
-	return &p, nil
+type UserLocUpdateEvent struct {
+	EventType   string     `json:"event_type"`
+	Coordinates Coordinate `json:"coordinates"`
 }
 
-// CreatePlayer creates new one or updates existing
-func UpsertPlayer(p *Player) (*Player, error) {
-
-	var err error
-	if p.ID == "" {
-		fmt.Printf("Insert : %v\n", p)
-		p.ID = bson.NewObjectId()
-		err = c_players.Insert(p)
-	} else {
-		fmt.Printf("Update : %v\n", p)
-		q := bson.M{"_id": p.ID}
-		err = c_players.Update(q, p)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return p, nil
+type GameUpdateEvent struct {
+	EventType             string     `json:"event_type"`
+	You                   User       `json:"you"`
+	Users                 []User     `json:"users"`
+	Spots                 []UserSpot `json:"spots"`
+	Created               int64      `json:"created"`
+	Time                  int64      `json:"time"`
+	TotalNumberOfSpots    int        `json:"spots_total"`
+	TotalNumberOfCheckins int        `json:"checkins_total"`
 }
 
-// UpdateLocation updates player location
-func UpdateLocation(id string, c Coordinate) error {
-
-	change := bson.M{"$set": bson.M{"coordinates": c}}
-	err := c_players.Update(bson.M{"_id": bson.ObjectIdHex(id)}, change)
-
-	if err != nil {
-		return err
-	}
-	fmt.Printf("Success! Loc update for %s \n", id)
-	return nil
+type GameOverEvent struct {
+	EventType string `json:"event_type"`
+	Started   int64  `json:"started"`
+	Ended     int64  `json:"ended"`
+	Score     int64  `json:"score"`
 }
 
-func New() {
+func (e UserLocUpdateEvent) Type() string {
+	return UserLocUpdateEventType
+}
 
-	// websocket server
-	server := NewWebsocketServer("/ws")
-	go server.Listen()
+func (e GameUpdateEvent) Type() string {
+	return GameUpdateEventType
+}
 
-	http.Handle("/hello", corsHandler(HelloServer))
-	http.HandleFunc("/version", func(rw http.ResponseWriter, req *http.Request) {
-		io.WriteString(rw, BuildStamp)
-	})
-	http.Handle("/game", corsHandler(GetActiveGame))
-	http.Handle("/player/locupdate", corsHandler(LocUpdate))
-	http.Handle("/spot/checkin", corsHandler(CheckinSpot))
-	// http.Handle("/events", broker)
-
-	// go func() {
-	// 	for {
-	// 		time.Sleep(time.Second * 2)
-	// 		// eventString := fmt.Sprintf("the time is %v", time.Now())
-	// 		// eventString := GetLocUpdateResponse(broker.GetConnectedPlayers())
-	// 		log.Println("Sending notification!")
-	// 		broker.Notifier <- []byte("notify")
-
-	// 	}
-	// }()
-
-	log.Print("Open URL http://localhost:3000/ in your browser.")
-	go log.Fatal("HTTP server error: ", http.ListenAndServe(":3000", nil))
+func (e GameOverEvent) Type() string {
+	return GameOverEventType
 }

@@ -14,8 +14,8 @@
 
 all:
 
-TAG = 0.0.12
-LATEST=latest
+TAG = 0.0.14
+LATEST = latest
 PREFIX = gcr.io/boomer-1470064436690
 NAME = nginx
 
