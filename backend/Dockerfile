@@ -5,7 +5,7 @@ ADD . /go/src/bitbucket.org/basilboli/boomer/backend
 
 # manage dependencies
 # RUN go install -ldflags "-X main.BuildStamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'`-githash:`git rev-parse HEAD`" bitbucket.org/basilboli/boomer/backend
-RUN go install -ldflags "-X main.BuildStamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'`" bitbucket.org/basilboli/boomer/backend
+RUN go install bitbucket.org/basilboli/boomer/backend
 
 WORKDIR /go/src/bitbucket.org/basilboli/boomer/backend
 
