@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bitbucket.org/basilboli/boomer/backend/Godeps/_workspace/src/github.com/braintree/manners"
 	"bitbucket.org/basilboli/boomer/backend/handlers"
 	"bitbucket.org/basilboli/boomer/backend/health"
 	"bitbucket.org/basilboli/boomer/backend/websockets"
 	"flag"
 	"fmt"
+	"github.com/braintree/manners"
 	"log"
 	"net/http"
 	"os"
