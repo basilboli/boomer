@@ -1,6 +1,21 @@
 # Release notes 
 
-## Version 1.1.4-rc (backed)
+## Version 1.1.8-rc (backend)
+
+- Cors middlewared fixed
+
+- Using id of the game as query param instead of body json {"gameid": "XXXX"}
+
+- /game/start?id=XXXX : start a game with id
+
+- /game/stop?id=XXXX : stop a game with id
+
+- /game/activities?id=XXXX : show the activities for game with id
+
+- /game/around?lat=XXX&lng=YYY : show the games around the coordinates
+
+
+## Version 1.1.4-rc (backend)
 
 - Player becomes user. All player entries are renamed to user
 
