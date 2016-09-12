@@ -57,17 +57,10 @@ Response
 {"userid":"57d295dc73e2a199a5c0d59d","name":"vasyl","email":"basilboli@gmail.com","coordinates":[2.34899551805,48.8700006172],"created":0,"has_ongoing_game":false}
 ```
 
-##/game/start
+##/game/start?id=XXXXX
 
-### start the game (POST)
+### start the game with given id (POST)
 
-
-Request
-
-```
-{"gameid":"57ab1dafbab09c24b9eefe12"}
-
-```
 
 Response
 
@@ -76,17 +69,10 @@ Response
 
 ```
 
-##/game/stop
+##/game/stop?id=XXXX
 
-### stop the game (POST)
+### stop the game with given id (POST)
 
-
-Request
-
-```
-{"gameid":"57ab1dafbab09c24b9eefe12"}
-
-```
 
 Response
 
@@ -95,10 +81,9 @@ Response
 
 ```
 
-##/game/activities
+##/game/activities?id=XXXX
 
-### show all user activities for the game  (GET)
-
+### show all user activities for the game  with id (GET)
 
 Response
 
@@ -107,9 +92,9 @@ Response
 
 ```
 
-##/game/around
+##/game/around?lat=XXX&lng=YYY
 
-### show games around user (GET)
+### show games around the coordinates 
 
 
 Response
