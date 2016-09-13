@@ -9,16 +9,17 @@ app.factory( 'SpotsLayer', function( $http, $compile ) {
             fillColor: "#000000"
         },
 
-        init: function( map ) {
+        init: function( map, spots ) {
             this.map = map;
             this.layer = L.layerGroup().addTo( this.map );
+            this.update( spots );
         },
 
         createMarker: function( spot ) {
             return L.circle( [ spot.location.coordinates[ 1 ], spot.location.coordinates[ 0 ] ], 25, this.options );
         },
 
-        addPlayer: function( player ) {},
+        addUser: function( user ) {},
 
         addSpot: function( spot ) {
             $compile( '<spot-marker></spot-marker>' )( {

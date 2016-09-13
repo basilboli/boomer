@@ -5,22 +5,29 @@ app.config( function( $routeProvider, $locationProvider ) {
         redirectTo: '/login'
     } ).when( '/login', {
         controller: "loginCtrl",
-        templateUrl: 'templates/login/template.html'
+        templateUrl: 'templates/login/template.html',
+        resolve: {
+            geo: function( AppModel, LoginService ) {
+                return LoginService.getGeolocation();
+            }
+        }
     } ).when( '/game-type-choice', {
         controller: "gameTypeChoiceCtrl",
         templateUrl: 'templates/game-type-choice/template.html'
-    } ).when( '/single-game', {
+    } ).when( '/game-around', {
+        controller: "gameAroundCtrl",
+        templateUrl: 'templates/game-around/template.html',
+        resolve: {
+            preload: function( AppModel, GameAroundService ) {
+                return GameAroundService.getAroundGames();
+            }
+        }
+    } ).when( '/single-game/:gameId', {
         controller: "singleGameCtrl",
         templateUrl: 'templates/single-game/template.html',
         resolve: {
-            preload: function( AppModel, $q, GameService ) {
-                AppModel.loader.show = true;
-
-                var deferred = $q.defer();
-
-                GameService.start( deferred );
-
-                return deferred.promise;
+            preload: function( AppModel, GameService ) {
+                return GameService.start();
             }
         }
     } ).otherwise( {
@@ -29,10 +36,12 @@ app.config( function( $routeProvider, $locationProvider ) {
 } );
 
 app.config( [ '$httpProvider', function( $httpProvider ) {
-    $httpProvider.defaults.headers.common = {};
-    $httpProvider.defaults.headers.post = {};
-    $httpProvider.defaults.headers.put = {};
-    $httpProvider.defaults.headers.patch = {};
+    // $httpProvider.defaults.headers.common = {};
+    // $httpProvider.defaults.headers.post = {};
+    // $httpProvider.defaults.headers.put = {};
+    // $httpProvider.defaults.headers.patch = {};
+
+    $httpProvider.interceptors.push( 'AuthInterceptor' );
 } ] );
 
 app.controller( 'appCtrl', function( $scope, AppModel ) {

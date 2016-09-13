@@ -11,14 +11,12 @@ app.factory( 'GamePolygon', function( $http, AppModel ) {
 
         init: function( map ) {
             this.map = map;
-            this.createPolygon( AppModel.game.polygon.coordinates );
+            this.createPolygon( AppModel.game.geometry.coordinates[ 0 ] );
         },
 
         createPolygon: function( coordinates ) {
-            coordinates.pop();
             coordinates = coordinates.map( function( point ) {
-                point.push( point.shift() );
-                return point;
+                return [ point[ 1 ], point[ 0 ] ]; // inverse [ lat, lng ] => [ lng, lat ]
             } );
             this.polygon = L.polygon( coordinates, this.options ).addTo( this.map );
         }

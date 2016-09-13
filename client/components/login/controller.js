@@ -1,7 +1,10 @@
 app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
 
+    $scope.email = "";
+    $scope.password = "";
+
     $scope.onConnect = function() {
-        $location.path( '/game-type-choice' );
+        LoginService.login( $scope.email, $scope.password );
     }
 
 } );

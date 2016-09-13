@@ -1,4 +1,4 @@
-app.directive( 'map', function( PlayersLayer, UserMarker, GamePolygon, SpotsLayer, AppModel ) {
+app.directive( 'map', function( UsersLayer, UserMarker, GamePolygon, SpotsLayer, AppModel ) {
 
     return {
         restrict: 'E',
@@ -26,9 +26,9 @@ app.directive( 'map', function( PlayersLayer, UserMarker, GamePolygon, SpotsLaye
             //     console.log( $scope.map.getZoom() );
             // } );
 
-            SpotsLayer.init( $scope.map );
+            SpotsLayer.init( $scope.map, AppModel.game.spots );
 
-            PlayersLayer.init( $scope.map );
+            UsersLayer.init( $scope.map );
 
             UserMarker.init( $scope.map );
 

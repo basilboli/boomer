@@ -1,0 +1,9 @@
+<section id="game-around">
+    <ul>
+        <li ng-repeat="game in model.aroundGames" ng-click="launchGame( game )">
+            Created: {{game.created | date:"dd/MM/yyyy"}}
+            <br/>
+            Spots: {{game.spots.length}}
+        </li>
+    </ul>
+</section>

@@ -1,2 +1,13 @@
 <map></map>
 <follow-me></follow-me>
+
+<div style="position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between;background: rgba( 255, 255, 255, 0.7 ); padding: 10px; box-sizing: border-box;">
+    <span>
+        {{model.game.checkins_total}} / {{model.game.spots_total}}
+    </span>
+    <span>
+        {{model.game.time}}
+    </span>
+</div>
+
+<button style="position: fixed; bottom: 20px; left: 20px;" ng-click="started ? stopGame() : startGame()">{{started ? "stop" : "start"}}</button>

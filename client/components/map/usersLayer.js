@@ -1,4 +1,4 @@
-app.factory( 'PlayersLayer', function( $http ) {
+app.factory( 'UsersLayer', function( $http ) {
 
     return {
         map: null,
@@ -15,20 +15,20 @@ app.factory( 'PlayersLayer', function( $http ) {
             this.layer = L.layerGroup().addTo( this.map );
         },
 
-        createMarker: function( player ) {
-            return L.circleMarker( [ player.coordinates[ 1 ], player.coordinates[ 0 ] ], this.options );
+        createMarker: function( user ) {
+            return L.circleMarker( [ user.coordinates[ 1 ], user.coordinates[ 0 ] ], this.options );
         },
 
-        addPlayer: function( player ) {
-            var marker = this.createMarker( player );
+        addUser: function( user ) {
+            var marker = this.createMarker( user );
             marker.addTo( this.layer );
         },
 
-        update: function( players ) {
+        update: function( users ) {
             if ( this.map ) {
                 this.layer.clearLayers();
-                players.forEach( function( player ) {
-                    this.addPlayer( player )
+                users.forEach( function( user ) {
+                    this.addUser( user )
                 }, this );
             }
         }

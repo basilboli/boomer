@@ -1,57 +1,25 @@
-app.factory( 'GameService', function( $http, $q, $timeout, AppModel, UserMarker, PlayersLayer, SpotsLayer ) {
+app.factory( 'GameService', function( $http, $q, $timeout, $rootScope, AppModel, UserMarker, UsersLayer, SpotsLayer ) {
 
     return {
 
-        start: function( deferred ) {
-            navigator.geolocation.getCurrentPosition(
-                function( position ) {
-                    AppModel.user.position.latitude = position.coords.latitude;
-                    AppModel.user.position.longitude = position.coords.longitude;
+        start: function() {
+            AppModel.loader.show = true;
 
-                    this.createPlayer().then(
-                        function( resp ) {
-                            AppModel.user.playerid = resp.data.playerid;
-                            return this.getGame();
-                        }.bind( this ),
-                        function( err ) {
-                            return $q.reject();
-                        }.bind( this )
-                    ).then(
-                        function() {
-                            return this.initSocket();
-                        }.bind( this ),
-                        function( err ) {
-                            return $q.reject();
-                        }
-                    ).then(
-                        function() {
-                            this.watchLocation();
-                            deferred.resolve();
-                            AppModel.loader.show = false;
-                        }.bind( this ),
-                        function( err ) {
-                            return $q.reject();
-                        }
-                    );
-
+            return this.initSocket().then(
+                function() {
+                    this.watchLocation();
+                    AppModel.loader.show = false;
                 }.bind( this ),
                 function( err ) {
-                    console.log( err );
-                }.bind( this )
+                    AppModel.loader.show = false;
+                }
             );
-        },
-
-        createPlayer: function() {
-            return $http.post( 'http://api.boomer.im/player/locupdate', {
-                name: "Damien",
-                coordinates: [ AppModel.user.position.longitude, AppModel.user.position.latitude ]
-            } );
         },
 
         initSocket: function() {
             var deferred = $q.defer();
 
-            this.socket = new WebSocket( "ws://api.boomer.im/events?access_token=" + AppModel.user.playerid );
+            this.socket = new WebSocket( "ws://api.boomer.im/events?access_token=" + AppModel.user.token );
 
             this.socket.onopen = function( event ) {
                 console.log( 'WebSocket opened' );
@@ -108,8 +76,8 @@ app.factory( 'GameService', function( $http, $q, $timeout, AppModel, UserMarker,
         onGetUserLocation: function( result ) {
             AppModel.user.position.latitude = result.coords.latitude;
             AppModel.user.position.longitude = result.coords.longitude;
-            // AppModel.user.position.latitude = 48.8781;
-            // AppModel.user.position.longitude = 2.3291;
+            // AppModel.user.position.latitude = 48.8987353;
+            // AppModel.user.position.longitude = 2.3787964;
 
             UserMarker.update( AppModel.user );
 
@@ -120,22 +88,10 @@ app.factory( 'GameService', function( $http, $q, $timeout, AppModel, UserMarker,
             // $timeout( this.watchLocation.bind( this ), 3000 );
         },
 
-        getGame: function() {
-            return $http.get( 'http://api.boomer.im/game' ).then(
-                function( resp ) {
-                    AppModel.game.polygon.coordinates = resp.data.geometry.coordinates[ 0 ]
-                },
-                function( err ) {
-                    console.log( err );
-                }
-            );
-        },
-
         sendPosition: function() {
             this.socket.send( JSON.stringify( {
-                name: "Damien",
-                coordinates: [ AppModel.user.position.longitude, AppModel.user.position.latitude ],
-                playerid: AppModel.user.playerid
+                event_type: "user_loc_update",
+                coordinates: [ AppModel.user.position.longitude, AppModel.user.position.latitude ]
             } ) );
         },
 
@@ -144,14 +100,26 @@ app.factory( 'GameService', function( $http, $q, $timeout, AppModel, UserMarker,
 
             console.log( data );
 
-            if ( data.players ) {
-                AppModel.players = data.players;
-                PlayersLayer.update( AppModel.players );
-            }
+            if ( data.event_type === "game_update" ) {
 
-            if ( data.spots ) {
-                AppModel.spots = data.spots;
-                SpotsLayer.update( AppModel.spots );
+                $rootScope.$apply( function() {
+                    AppModel.game.checkins_total = data.checkins_total;
+                    AppModel.game.spots = data.spots;
+                    AppModel.game.spots_total = data.spots_total;
+                    AppModel.game.time = data.time;
+                } );
+
+                if ( data.users ) {
+                    AppModel.users = data.users;
+                    UsersLayer.update( AppModel.users );
+                }
+
+                if ( data.spots ) {
+                    AppModel.game.spots = data.spots;
+                    SpotsLayer.update( AppModel.game.spots );
+                }
+            } else if ( data.event_type === "game_over" ) {
+                alert( 'End of the game. Score: ' + data.score )
             }
         },
 

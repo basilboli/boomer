@@ -6,15 +6,15 @@ app.factory( 'AppModel', function() {
             position: {}
         },
 
-        players: [],
+        users: [],
 
-        game: {
-            polygon: []
-        },
+        game: {},
 
         loader: {
             show: false
         },
+
+        aroundGames: [],
 
         heading: 0
 
