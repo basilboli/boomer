@@ -93,6 +93,18 @@ app.factory( 'GameService', function( $http, $q, $timeout, $rootScope, AppModel,
             );
         },
 
+        stop: function() {
+            this.closeSocket();
+            this.stopWatchGeolocation();
+        },
+
+        closeSocket: function() {
+            console.log( "try closing" );
+            console.log( this.socket.readyState );
+            this.socket.close();
+            setTimeout( () => console.log( this.socket.readyState ), 3000 );
+        },
+
         initSocket: function() {
             var deferred = $q.defer();
 
@@ -651,10 +663,12 @@ app.controller( 'singleGameCtrl', function( $scope, $routeParams, AppModel, Sing
     };
 
     $scope.stopGame = function(  ){
-        SingleGameService.stopGame().then( function(  ){
-            $scope.started = false;
-        } );
-        GameService.stopWatchGeolocation();
+        if( $scope.started ){
+            SingleGameService.stopGame().then( function(  ){
+                $scope.started = false;
+            } );
+        }
+        GameService.stop();
     };
 
     $scope.$on( "$destroy", function() {
@@ -667,15 +681,19 @@ app.factory( 'SingleGameService', function( $http, AppModel ) {
 
     return {
 
-        startGame: function(  ){
+        startGame: function() {
             return $http.post( 'http://api.boomer.im/game/start', null, {
                 params: {
                     id: AppModel.game.gameid
                 }
-            } )
+            } ).then( function() {
+
+            }.bind( this ), function( err ) {
+                console.log( err );
+            }.bind( this ) )
         },
 
-        stopGame: function(  ){
+        stopGame: function() {
             return $http.post( 'http://api.boomer.im/game/stop', null, {
                 params: {
                     id: AppModel.game.gameid

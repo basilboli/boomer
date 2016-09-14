@@ -13,10 +13,12 @@ app.controller( 'singleGameCtrl', function( $scope, $routeParams, AppModel, Sing
     };
 
     $scope.stopGame = function(  ){
-        SingleGameService.stopGame().then( function(  ){
-            $scope.started = false;
-        } );
-        GameService.stopWatchGeolocation();
+        if( $scope.started ){
+            SingleGameService.stopGame().then( function(  ){
+                $scope.started = false;
+            } );
+        }
+        GameService.stop();
     };
 
     $scope.$on( "$destroy", function() {

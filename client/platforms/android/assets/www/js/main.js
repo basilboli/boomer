@@ -278,6 +278,16 @@ app.factory( 'GameAroundService', function( $http, AppModel ) {
 
 } );
 
+app.directive( 'loader', function() {
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'templates/loader/template.html'
+    }
+
+} );
+
 app.controller( 'gameTypeChoiceCtrl', function( $scope, AppModel, $location, GameChoiceService ) {
 
     $scope.onChoiceSingle = function() {
@@ -291,16 +301,6 @@ app.factory( 'GameChoiceService', function( $http, AppModel ) {
     return {
 
     };
-
-} );
-
-app.directive( 'loader', function() {
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'templates/loader/template.html'
-    }
 
 } );
 

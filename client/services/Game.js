@@ -16,6 +16,18 @@ app.factory( 'GameService', function( $http, $q, $timeout, $rootScope, AppModel,
             );
         },
 
+        stop: function() {
+            this.closeSocket();
+            this.stopWatchGeolocation();
+        },
+
+        closeSocket: function() {
+            console.log( "try closing" );
+            console.log( this.socket.readyState );
+            this.socket.close();
+            setTimeout( () => console.log( this.socket.readyState ), 3000 );
+        },
+
         initSocket: function() {
             var deferred = $q.defer();
 
