@@ -1,5 +1,7 @@
 app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
 
+    if( AppModel.user.token ) $location.path( '/game-type-choice' );
+
     $scope.email = "";
     $scope.password = "";
 
