@@ -6,26 +6,50 @@
 - single player game
 
 ###what you can see:
-- map around your actual position of visible spots and artifacts
-- beasts moving around you
+
+- region of the game 
+- colored spots (could be the same color)
 
 ###players main task:
-- run fast, checkin the spots and avoid crossing with beasts
+- run fast and visit all the spots
+- make the longest chain with the spots of the same color to multiply your score
+- beat the friends on the leaderboard
 
 ###game mechanics
-- while running you can pickup an artifact if you passes around
-- every artifact gives you some power example the bomb you put somewhere to kill the beast
-
+- the spot is checked if the user is close (boomerman.spot.check.proximity=50m) 
 
 ## BoomerTeam
 
 - multiplayer version of BoomerMan
 
-###what you can see:
-- \+ other players
+### what you can see:
+- region of the game 
+- spots 
+- enemies 
+- active bombs 
+- bombs explosion 
+- (experimental) bombs recharge spot 
+- (experimental) immunity spot 
 
-###game mechanics
-- you can use artefact against other players
+### players main task:
+- color maximum spots with the team's color 
+- kill enemies using bombs 
+- the game is ended when all the spots are colored or all the team's players are dead
+
+### game mechanics
+- to play the game user should be part of the team or create new one and invite the friends
+- any team player can start new game and select game zone
+- any team player can see the countdown boomerteam.game.countdown.time (1m) before the game starts (like flashcode)
+- user should join the game to play 
+- when joining the game user selects a side (white side of angels or dark side of demons)
+- any user visiting a spot color the spot with the team's color
+- every user possesses a boomerteam.bombs.initial.count bombs
+- user can put a bomb at any place 
+- bombs exploses after boomerteam.bomb.explosition.time (10s)
+- if any user is in the boomerteam.bomb.explosition.distance radius (100 m) he is dead
+- (experimental) boomerteam.bombs.recharge.count times during a game new recharge spot appears on the game
+- (experimental) boomerteam.bombs.immunity.count times during a game new immunity spot appears on the game
+
 
 ## BoomerCity
 
@@ -45,4 +69,3 @@
 
 ### game point of interests (curated list by boomer team)
 - https://docs.google.com/spreadsheets/d/134LjB_tT33Fs_w4J-cZyAnU6-Vsgt4GDlZwfI14i4VQ/edit#gid=0
-
