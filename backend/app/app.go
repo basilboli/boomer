@@ -19,9 +19,9 @@ type Event interface {
 	Type() string
 }
 
-type CoordType float64
+// type CoordType float64
 
-type Coordinate [2]CoordType
+type Coordinate [2]float64
 
 type Coordinates []Coordinate
 
@@ -54,7 +54,7 @@ type UserSpot struct {
 }
 
 type Game struct {
-	ID           bson.ObjectId `bson:"_id,omitempty" json:"-"`
+	ID           bson.ObjectId `bson:"_id,omitempty" json:"gameid"`
 	Name         string        `bson:"name" json:"-"`
 	Geometry     Polygon       `bson:"geometry" json:"geometry"`
 	Spots        []Spot        `bson:"spots" json:"spots,omitempty"`

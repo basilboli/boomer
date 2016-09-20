@@ -26,6 +26,7 @@ type signupHandler struct {
 }
 
 func (h *loginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
 	log.Println("Login")
 	email, password, ok := r.BasicAuth()
 
@@ -77,6 +78,7 @@ func SignUpHandler(secret string) http.Handler {
 }
 
 func (h *signupHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+
 	if req.Method != "POST" {
 		http.Error(rw, http.StatusText(405), 405)
 		return

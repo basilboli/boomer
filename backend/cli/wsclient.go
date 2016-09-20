@@ -14,12 +14,12 @@ var origin = "http://localhost/"
 func main() {
 	var (
 		httpAddr = flag.String("httpAddr", "ws://localhost:3000/events", "websocket service address.")
-		payload  = flag.String("payload", "?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJhc2lsYm9saUBnbWFpbC5jb20iLCJleHAiOjE0NzM2Nzc5MTYsImlhdCI6MTQ3MzQxODcxNiwiaXNzIjoiYXV0aC5zZXJ2aWNlIiwic3ViIjoiNTdkMjk1ZGM3M2UyYTE5OWE1YzBkNTlkIn0.tTgIeFzbw0yUNdxVhSWxHySHtJvSBWME4pROjU5pFXk", "Health service address.")
+		payload  = flag.String("payload", "?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJhc2lsYm9saUBnbWFpbC5jb20iLCJleHAiOjE0NzM5NjE3MDEsImlhdCI6MTQ3MzcwMjUwMSwiaXNzIjoiYXV0aC5zZXJ2aWNlIiwic3ViIjoiNTdkMjk1ZGM3M2UyYTE5OWE1YzBkNTlkIn0.kywtYcgwUprsUZfyeT2IXyHgaK34fWgEy6jS32ZvjGs", "Health service address.")
 		// 2.34925,48.86789
 		// 2.35166987369, 48.8652406217
 
-		lng = flag.String("lng", "2.34899551805", "lng")
-		lat = flag.String("lat", "48.8700006172", "lat")
+		lng = flag.String("lng", "2.3272316", "lng")
+		lat = flag.String("lat", "48.878873", "lat")
 	)
 	flag.Parse()
 	url := *httpAddr + *payload

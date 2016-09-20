@@ -5,12 +5,19 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/net/websocket"
+	"io"
 	"log"
 	"net/http"
 )
 
+// Echo the data received on the WebSocket.
+func EchoServer(ws *websocket.Conn) {
+	io.Copy(ws, ws)
+}
+
 // Chat server.
 type Server struct {
+	mux       *http.ServeMux
 	pattern   string
 	clients   map[int]*Client
 	addCh     chan *Client
@@ -21,7 +28,7 @@ type Server struct {
 }
 
 // Create new  server.
-func NewServer(pattern string) *Server {
+func NewServer(mux *http.ServeMux, pattern string) *Server {
 	clients := make(map[int]*Client)
 	addCh := make(chan *Client)
 	delCh := make(chan *Client)
@@ -30,6 +37,7 @@ func NewServer(pattern string) *Server {
 	errCh := make(chan error)
 
 	return &Server{
+		mux,
 		pattern,
 		clients,
 		addCh,
@@ -99,7 +107,7 @@ func (s *Server) Listen() {
 		client.Listen()
 
 	}
-	http.Handle(s.pattern, websocket.Handler(onConnected))
+	s.mux.Handle(s.pattern, websocket.Handler(onConnected))
 	log.Println("Created handler")
 
 	for {

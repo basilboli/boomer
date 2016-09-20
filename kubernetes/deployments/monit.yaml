@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+    role: server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: backend
+        role: server
+    spec:        
+      containers:
+      - image: datadog/docker-dd-agent:latest
+        name: dd-agent
+        volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker
+        - mountPath: /host/proc/
+          name: proc  
+        - mountPath: /host/sys/fs/cgroup
+          name: sysfs  
+      volumes:
+      - name: docker
+        hostPath:
+        # directory location on host
+        path: /var/run/docker.sock
+      - name: proc
+        hostPath:
+        path: /proc/
+      - name: sysfs
+        hostPath:
+        path: /sys/fs/cgroup/
