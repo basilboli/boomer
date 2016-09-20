@@ -2,6 +2,8 @@
 
 ## BoomerMan
 
+## Moto : Running is not enough
+
 ###mode
 - single player game
 
@@ -18,7 +20,9 @@
 ###game mechanics
 - the spot is checked if the user is close (boomerman.spot.check.proximity=50m) 
 
-## BoomerTeam
+## BoomerMen
+
+## Moto : Boom your friends 
 
 - multiplayer version of BoomerMan
 
@@ -50,22 +54,8 @@
 - (experimental) boomerteam.bombs.recharge.count times during a game new recharge spot appears on the game
 - (experimental) boomerteam.bombs.immunity.count times during a game new immunity spot appears on the game
 
+## Boomer KillerHood
 
-## BoomerCity
+## When Neighbours become Killers
 
-###what you can see:
-- map of visible clues and a final hidden spot
-
-###players main task:
-- pickup as many spots clues as possible to be the first team to find the final hidden spot
-
-###game mechanics
-- every clue leads to the final hidden
-- when you are nearby a clue spot you can check it and read the clue text and guess the final hidden spot
-- when you have checked the spot all the clues and the spot becomes green
-- when you are nearby the final hidden spot it becomes visible to you and you can check it
-- The winner team is the first team to find and check the final hidden spot
-- global leaderboard of users
-
-### game point of interests (curated list by boomer team)
-- https://docs.google.com/spreadsheets/d/134LjB_tT33Fs_w4J-cZyAnU6-Vsgt4GDlZwfI14i4VQ/edit#gid=0
+## Under construction 
