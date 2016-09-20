@@ -2,7 +2,7 @@
 
 ## BoomerMan
 
-## Moto : Running is not enough
+## Running is not enough
 
 ###mode
 - single player game
@@ -22,7 +22,7 @@
 
 ## BoomerMen
 
-## Moto : Boom your friends 
+## Boom your friends 
 
 - multiplayer version of BoomerMan
 
@@ -58,4 +58,10 @@
 
 ## When Neighbours become Killers
 
-## Under construction 
+TODO 
+
+## Boomer Treasure 
+
+## Solve enigmas and find the hidden Treasure
+
+TODO 
