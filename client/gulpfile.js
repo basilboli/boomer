@@ -19,6 +19,7 @@ gulp.task( 'js', function() {
     return gulp.src( [
         './core/app.js',
         './services/*.js',
+        './filters/*.js',
         './components/**/*.js'
     ] ).pipe(
         gulp_concat( 'main.js' )
@@ -48,6 +49,6 @@ gulp.task( 'serve', function() {
 // DEFAULT
 gulp.task( 'default', [ 'less', 'js', 'move_templates', 'serve' ], function() {
     gulp.watch( [ './core/style/*.less', './components/**/style/*.less' ], [ 'less' ] );
-    gulp.watch( [ './core/app.js', './services/*.js', './components/**/*.js' ], [ 'js' ] );
+    gulp.watch( [ './core/app.js', './services/*.js', './filters/*.js', './components/**/*.js' ], [ 'js' ] );
     gulp.watch( [ './core/templates/*.html', './components/**/*.html' ], [ 'move_templates' ] );
 } );

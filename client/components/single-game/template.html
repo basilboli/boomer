@@ -6,7 +6,7 @@
         {{model.game.checkins_total}} / {{model.game.spots_total}}
     </span>
     <span>
-        {{model.game.time}}
+        {{model.game.time | secondsToHuman}}
     </span>
 </div>
 

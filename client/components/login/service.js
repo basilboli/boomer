@@ -20,24 +20,7 @@ app.factory( 'LoginService', function( $http, $q, $location, AppModel ) {
 
         setToken: function( token ) {
             AppModel.user.token = token;
-        },
-
-        getGeolocation: function() {
-            var deferred = $q.defer();
-
-            navigator.geolocation.getCurrentPosition(
-                function( position ) {
-                    AppModel.user.position.latitude = position.coords.latitude;
-                    AppModel.user.position.longitude = position.coords.longitude;
-                    deferred.resolve();
-                }.bind( this ),
-                function( err ) {
-                    console.log( err );
-                    deferred.resolve();
-                }.bind( this )
-            );
-
-            return deferred.promise;
+            window.localStorage[ 'token' ] = token;
         }
 
     };
