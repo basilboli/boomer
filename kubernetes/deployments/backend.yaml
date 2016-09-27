@@ -14,5 +14,8 @@ spec:
         role: server
     spec:        
       containers:
-      - image: datadog/docker-dd-agent:latest
-        name: dd-agent
+      - image: gcr.io/boomer-1470064436690/boomer:1.1.8-rc
+        name: backend
+        ports:
+        - name: backend
+          containerPort: 3000   

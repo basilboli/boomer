@@ -20,11 +20,11 @@
 ###game mechanics
 - the spot is checked if the user is close (boomerman.spot.check.proximity=50m) 
 
-## BoomerMen
+## BoomerTeam
 
-## Boom your friends 
+## Boom with your friends 
 
-- multiplayer version of BoomerMan
+- multiplayer game
 
 ### what you can see:
 - region of the game 
