@@ -1,13 +1,6 @@
 .PHONY: all
 all: deploy
 
-.PHONY: connect
-connect:
-	export GOOGLE_APPLICATION_CREDENTIALS=/Users/basilboli/dev/google/serviceaccount/boomer-92c5f59548fa.json
-	gcloud config configurations activate boomer
-	gcloud config set project boomer-1470064436690
-	gcloud container clusters get-credentials boomer-cluster
-
 .PHONY: deploy
 deploy: deploy-backend deploy-frontend
 
@@ -41,7 +34,6 @@ build-client:
 	cd client; cordova build android
 	gsutil cp client/platforms/android/build/outputs/apk/android-debug.apk gs://boomer_data/boomer.apk
 	gsutil setacl public-read gs://boomer_data/boomer.apk
-
 
 .PHONY: run-mongo
 run-mongo:
