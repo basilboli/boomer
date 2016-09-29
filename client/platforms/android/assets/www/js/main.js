@@ -1,53 +1,35 @@
 var app = angular.module( 'Application', [ 'ngRoute' ] );
 
-app.config( function( $routeProvider, $locationProvider ) {
+app.config( function( $routeProvider, $locationProvider, $httpProvider ) {
     $routeProvider.when( '/', {
         redirectTo: '/login'
     } ).when( '/login', {
         controller: "loginCtrl",
-        templateUrl: 'templates/login/template.html',
-        resolve: {
-            geo: function( AppModel, LoginService ) {
-                return LoginService.getGeolocation();
-            }
-        }
+        templateUrl: 'templates/login/template.html'
     } ).when( '/game-type-choice', {
         controller: "gameTypeChoiceCtrl",
         templateUrl: 'templates/game-type-choice/template.html'
     } ).when( '/game-around', {
         controller: "gameAroundCtrl",
-        templateUrl: 'templates/game-around/template.html',
-        resolve: {
-            preload: function( AppModel, GameAroundService ) {
-                return GameAroundService.getAroundGames();
-            }
-        }
+        templateUrl: 'templates/game-around/template.html'
     } ).when( '/single-game/:gameId', {
         controller: "singleGameCtrl",
-        templateUrl: 'templates/single-game/template.html',
-        resolve: {
-            preload: function( AppModel, GameService ) {
-                return GameService.start();
-            }
-        }
+        templateUrl: 'templates/single-game/template.html'
     } ).otherwise( {
         redirectTo: '/'
     } );
-} );
 
-app.config( [ '$httpProvider', function( $httpProvider ) {
-    // $httpProvider.defaults.headers.common = {};
-    // $httpProvider.defaults.headers.post = {};
-    // $httpProvider.defaults.headers.put = {};
-    // $httpProvider.defaults.headers.patch = {};
 
     $httpProvider.interceptors.push( 'AuthInterceptor' );
-} ] );
+} );
 
-app.controller( 'appCtrl', function( $scope, AppModel ) {
+app.controller( 'appCtrl', function( $scope, AppModel, LoginService ) {
 
     $scope.model = AppModel;
 
+    var token = window.localStorage[ 'token' ];
+
+    if ( token ) LoginService.setToken( token );
 
 } );
 
@@ -91,6 +73,18 @@ app.factory( 'GameService', function( $http, $q, $timeout, $rootScope, AppModel,
                     AppModel.loader.show = false;
                 }
             );
+        },
+
+        stop: function() {
+            this.closeSocket();
+            this.stopWatchGeolocation();
+        },
+
+        closeSocket: function() {
+            console.log( "try closing" );
+            console.log( this.socket.readyState );
+            this.socket.close();
+            setTimeout( () => console.log( this.socket.readyState ), 3000 );
         },
 
         initSocket: function() {
@@ -222,6 +216,16 @@ app.factory( 'GameService', function( $http, $q, $timeout, $rootScope, AppModel,
 
 } );
 
+app.filter( 'secondsToHuman', function() {
+    return function( input ) {
+        var h = Math.floor( input / 3600 ),
+            m = Math.floor( ( input - ( h * 3600 ) ) / 60 ),
+            s = input - ( h * 3600 ) - ( m * 60 );
+
+        return ( h < 10 ? "0" + h : h ) + ':' + ( m < 10 ? "0" + m : m ) + ':' + ( s < 10 ? "0" + s : s );
+    };
+} );
+
 app.directive( 'followMe', function() {
 
     return {
@@ -247,6 +251,24 @@ app.controller( 'gameAroundCtrl', function( $scope, AppModel, $location, GameAro
 
     $scope.model = AppModel;
 
+    navigator.geolocation.getCurrentPosition(
+        function( position ) {
+            AppModel.user.position.latitude = position.coords.latitude;
+            AppModel.user.position.longitude = position.coords.longitude;
+            $scope.getGamesList();
+        }.bind( this ),
+        function( err ) {
+            console.log( err );
+        }.bind( this )
+    );
+
+    $scope.getGamesList = function() {
+        AppModel.loader.show = true;
+        GameAroundService.getAroundGames().finally( function() {
+            AppModel.loader.show = false;
+        } );
+    };
+
     $scope.launchGame = function( game ) {
         $location.path( '/single-game/' + game.gameid );
     };
@@ -258,8 +280,6 @@ app.factory( 'GameAroundService', function( $http, AppModel ) {
     return {
 
         getAroundGames: function() {
-            AppModel.loader.show = true;
-
             return $http.get( 'http://api.boomer.im/game/around', {
                 params: {
                     lat: AppModel.user.position.latitude,
@@ -267,24 +287,12 @@ app.factory( 'GameAroundService', function( $http, AppModel ) {
                 }
             } ).then( function( resp ) {
                 AppModel.aroundGames = resp.data;
-                AppModel.loader.show = false;
             }, function( err ) {
                 console.log( err );
-                AppModel.loader.show = false;
             } );
         }
 
     };
-
-} );
-
-app.directive( 'loader', function() {
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'templates/loader/template.html'
-    }
 
 } );
 
@@ -304,7 +312,19 @@ app.factory( 'GameChoiceService', function( $http, AppModel ) {
 
 } );
 
+app.directive( 'loader', function() {
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'templates/loader/template.html'
+    }
+
+} );
+
 app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService ) {
+
+    if( AppModel.user.token ) $location.path( '/game-type-choice' );
 
     $scope.email = "";
     $scope.password = "";
@@ -315,18 +335,31 @@ app.controller( 'loginCtrl', function( $scope, AppModel, $location, LoginService
 
 } );
 
-app.factory( 'AuthInterceptor', function( AppModel ) {
+app.factory( 'AuthInterceptor', function( AppModel, $location ) {
 
     return {
+
         request: function( config ) {
             config.headers = config.headers || {};
 
-            if( AppModel.user.token ){
+            if ( AppModel.user.token ) {
                 config.headers.Authorization = "Bearer " + AppModel.user.token;
             }
 
             return config;
+        },
+
+        responseError: function( response ) {
+
+            if ( response.status === 401 ) {
+                delete AppModel.user.token;
+                delete window.localStorage[ 'token' ];
+                $location.path( '/login' );
+            }
+
+            return response;
         }
+
     };
 
 } );
@@ -353,24 +386,7 @@ app.factory( 'LoginService', function( $http, $q, $location, AppModel ) {
 
         setToken: function( token ) {
             AppModel.user.token = token;
-        },
-
-        getGeolocation: function() {
-            var deferred = $q.defer();
-
-            navigator.geolocation.getCurrentPosition(
-                function( position ) {
-                    AppModel.user.position.latitude = position.coords.latitude;
-                    AppModel.user.position.longitude = position.coords.longitude;
-                    deferred.resolve();
-                }.bind( this ),
-                function( err ) {
-                    console.log( err );
-                    deferred.resolve();
-                }.bind( this )
-            );
-
-            return deferred.promise;
+            window.localStorage[ 'token' ] = token;
         }
 
     };
@@ -640,21 +656,27 @@ app.controller( 'singleGameCtrl', function( $scope, $routeParams, AppModel, Sing
 
     $scope.started = false;
 
+    AppModel.loader.show = true;
+
+    GameService.start().finally( function() {
+        AppModel.loader.show = false;
+    } );
+
     AppModel.game = AppModel.aroundGames.filter( function( game ) {
         return game.gameid === $routeParams.gameId;
     } )[ 0 ];
 
-    $scope.startGame = function(  ){
-        SingleGameService.startGame().then( function(  ){
+    $scope.startGame = function() {
+        SingleGameService.startGame().then( function() {
             $scope.started = true;
         } );
     };
 
-    $scope.stopGame = function(  ){
-        SingleGameService.stopGame().then( function(  ){
+    $scope.stopGame = function() {
+        SingleGameService.stopGame().then( function() {
             $scope.started = false;
         } );
-        GameService.stopWatchGeolocation();
+        GameService.stop();
     };
 
     $scope.$on( "$destroy", function() {
@@ -667,15 +689,19 @@ app.factory( 'SingleGameService', function( $http, AppModel ) {
 
     return {
 
-        startGame: function(  ){
+        startGame: function() {
             return $http.post( 'http://api.boomer.im/game/start', null, {
                 params: {
                     id: AppModel.game.gameid
                 }
-            } )
+            } ).then( function() {
+
+            }.bind( this ), function( err ) {
+                console.log( err );
+            }.bind( this ) )
         },
 
-        stopGame: function(  ){
+        stopGame: function() {
             return $http.post( 'http://api.boomer.im/game/stop', null, {
                 params: {
                     id: AppModel.game.gameid
