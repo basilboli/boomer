@@ -10,16 +10,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 const (
 	MAX_DISTANCE = 50 // in meters
 )
-
-type GameRequest struct {
-	GameId bson.ObjectId `bson:"gameid,omitempty" json:"gameid"`
-}
 
 // User returns a User for a given id
 func GetUser(id string) (*User, error) {
@@ -85,9 +82,14 @@ func BuildGameUpdateEvent(activity Activity, otherUsers []string) (GameUpdateEve
 	}
 
 	// DB REQUEST : other Users info
-	var Users []User
+	var users []User
 	err = CUsers.Pipe([]bson.M{{"$match": bson.M{"_id": bson.M{"$ne": activity.UserId, "$in": oids}}},
-		{"$project": bson.M{"name": 1, "coordinates": 1, "_id": 0}}}).All(&Users)
+		{"$project": bson.M{"name": 1, "coordinates": 1, "_id": 0}}}).All(&users)
+
+	if err != nil {
+		log.Printf("Problem finding other users: %s", err)
+		return gameUpdateEvent, err
+	}
 
 	// DB REQUEST : all spots for the given active game
 	var game Game // to hold the active game
@@ -95,28 +97,36 @@ func BuildGameUpdateEvent(activity Activity, otherUsers []string) (GameUpdateEve
 	// spots for the active game
 	err = CGames.Pipe([]bson.M{{"$match": bson.M{"_id": activity.GameId}},
 		{"$lookup": bson.M{"from": "spots", "localField": "_id", "foreignField": "gameid", "as": "spots"}}}).One(&game)
+
 	if err != nil {
-		log.Printf("spots JSON marshaling failed: %s", err)
+		log.Printf("Problem finding game: %s", err)
 		return gameUpdateEvent, err
 	}
+
+	log.Printf("Found active game : %v", game.ID)
+	log.Printf("Game spots %v", game.Spots)
+
 	// -- end
 
 	// find nearby spots for the user
 	var nearbySpots []Spot // to hold all the spots
 
-	err = CSpots.Find(bson.M{"geometry": bson.M{"$nearSphere": bson.M{"$geometry": bson.M{
-
-		"type": "Point",
-
-		"coordinates": thisUser.Coordinates,
-	},
-		"$maxDistance": MAX_DISTANCE,
-	},
-	}}).All(&nearbySpots)
+	err = CSpots.Find(bson.M{
+		"geometry": bson.M{
+			"$nearSphere": bson.M{
+				"$geometry": bson.M{
+					"type":        "Point",
+					"coordinates": thisUser.Coordinates,
+				},
+				"$maxDistance": MAX_DISTANCE,
+			},
+		},
+		"gameid": activity.GameId,
+	}).All(&nearbySpots)
 
 	// here we checkin nearby spots
 	for _, spot := range nearbySpots {
-		err := DoCheckin(spot.ID, activity.GameId, activity.ID, activity.UserId)
+		err := DoCheckin(spot.ID, activity)
 		if err != nil {
 			log.Printf("Problem doing checkin: %s\n", err)
 			return gameUpdateEvent, err
@@ -151,7 +161,7 @@ func BuildGameUpdateEvent(activity Activity, otherUsers []string) (GameUpdateEve
 		spots = append(spots, spot)
 	}
 	currentTime := time.Now().Unix() - activity.Started
-	gameUpdateEvent = GameUpdateEvent{EventType: GameUpdateEventType, You: thisUser, Users: Users, Spots: spots, TotalNumberOfCheckins: len(checkins), TotalNumberOfSpots: len(game.Spots), Time: currentTime}
+	gameUpdateEvent = GameUpdateEvent{EventType: GameUpdateEventType, You: thisUser, Users: users, Spots: spots, TotalNumberOfCheckins: len(checkins), TotalNumberOfSpots: len(game.Spots), Time: currentTime}
 
 	return gameUpdateEvent, nil
 }
@@ -176,15 +186,15 @@ func DoEndGame(activityid bson.ObjectId) (Activity, error) {
 	return activity, nil
 }
 
-func DoCheckin(spotid bson.ObjectId, gameid bson.ObjectId, activityid bson.ObjectId, userid bson.ObjectId) error {
-	count, err := CCheckins.Find(bson.M{"spotid": spotid, "gameid": gameid, "userid": userid, "activityid": activityid}).Count()
+func DoCheckin(spotid bson.ObjectId, activity Activity) error {
+	count, err := CCheckins.Find(bson.M{"spotid": spotid, "gameid": activity.GameId, "userid": activity.UserId, "activityid": activity.ID}).Count()
 	if err != nil {
 		return err
 	}
 	if count != 0 {
 		log.Printf("Boom! Spot has been checked already.\n")
 	} else {
-		checkin := Checkin{SpotId: spotid, GameId: gameid, UserId: userid, ActivityId: activityid, Created: time.Now().Unix()}
+		checkin := Checkin{SpotId: spotid, GameId: activity.GameId, UserId: activity.UserId, ActivityId: activity.ID, Created: time.Now().Unix()}
 		err = CCheckins.Insert(checkin)
 
 		if err != nil {
@@ -293,28 +303,18 @@ func GetGameActivities(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		http.Error(rw, http.StatusText(500), 500)
-		return
-	}
-	log.Println(string(body))
+	gameIdStr := req.URL.Query().Get("id")
 
-	var request GameRequest
-	err = json.Unmarshal(body, &request)
-	if err != nil {
-		http.Error(rw, http.StatusText(500), 500)
+	if gameIdStr == "" || !bson.IsObjectIdHex(gameIdStr) {
+		http.Error(rw, "game id is not provided or not valid", 405)
 		return
 	}
 
-	if request.GameId == "" {
-		http.Error(rw, "gameid cannot be null.", http.StatusBadRequest)
-		return
-	}
+	gameId := bson.ObjectIdHex(gameIdStr)
 
 	var activities []Activity
 
-	err = CActivities.Find(bson.M{"gameid": request.GameId, "userid": bson.ObjectIdHex(userid)}).All(&activities)
+	err := CActivities.Find(bson.M{"gameid": gameId, "userid": bson.ObjectIdHex(userid)}).All(&activities)
 
 	if err != nil {
 		http.Error(rw, http.StatusText(500), 500)
@@ -340,27 +340,16 @@ func StartGameHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		http.Error(rw, http.StatusText(500), 500)
-		return
-	}
-	log.Println(string(body))
+	gameIdStr := req.URL.Query().Get("id")
 
-	var request GameRequest
-
-	err = json.Unmarshal(body, &request)
-	if err != nil {
-		http.Error(rw, http.StatusText(500), 500)
+	if gameIdStr == "" || !bson.IsObjectIdHex(gameIdStr) {
+		http.Error(rw, "game id is not provided or not valid", 405)
 		return
 	}
 
-	if request.GameId == "" {
-		http.Error(rw, "gameid cannot be null.", http.StatusBadRequest)
-		return
-	}
+	gameId := bson.ObjectIdHex(gameIdStr)
 
-	count, err := CActivities.Find(bson.M{"gameid": request.GameId, "status": Ongoing, "userid": bson.ObjectIdHex(userid)}).Count()
+	count, err := CActivities.Find(bson.M{"gameid": gameId, "status": Ongoing, "userid": bson.ObjectIdHex(userid)}).Count()
 
 	if err != nil {
 		http.Error(rw, http.StatusText(500), 500)
@@ -373,7 +362,7 @@ func StartGameHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// create new actity for the game
-	newActivity := Activity{GameId: request.GameId, Started: time.Now().Unix(), Status: Ongoing, UserId: bson.ObjectIdHex(userid)}
+	newActivity := Activity{GameId: gameId, Started: time.Now().Unix(), Status: Ongoing, UserId: bson.ObjectIdHex(userid)}
 	err = CActivities.Insert(newActivity)
 
 	if err != nil {
@@ -399,28 +388,17 @@ func StopGameHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		http.Error(rw, http.StatusText(500), 500)
-		return
-	}
-	log.Println(string(body))
+	gameIdStr := req.URL.Query().Get("id")
 
-	var request GameRequest
-
-	err = json.Unmarshal(body, &request)
-	if err != nil {
-		http.Error(rw, http.StatusText(500), 500)
+	if gameIdStr == "" || !bson.IsObjectIdHex(gameIdStr) {
+		http.Error(rw, "game id is not provided or not valid", 405)
 		return
 	}
 
-	if request.GameId == "" {
-		http.Error(rw, "gameid cannot be null.", http.StatusBadRequest)
-		return
-	}
+	gameId := bson.ObjectIdHex(gameIdStr)
 
 	var activ Activity
-	err = CActivities.Find(bson.M{"gameid": request.GameId, "status": Ongoing, "userid": bson.ObjectIdHex(userid)}).One(&activ)
+	err := CActivities.Find(bson.M{"gameid": gameId, "status": Ongoing, "userid": bson.ObjectIdHex(userid)}).One(&activ)
 
 	if err != nil {
 		http.Error(rw, http.StatusText(500), 500)
@@ -467,11 +445,34 @@ func GetGamesAroundHandler(rw http.ResponseWriter, req *http.Request) {
 		http.Error(rw, "Problem getting userid from context", 500)
 		return
 	}
+	latStr := req.URL.Query().Get("lat")
+	lngStr := req.URL.Query().Get("lng")
+
+	if latStr == "" || lngStr == "" {
+		http.Error(rw, "lat,lng not provided", 405)
+		return
+	}
+
+	lat, err := strconv.ParseFloat(latStr, 64)
+
+	if err != nil {
+		http.Error(rw, "Problem parsing lat,lng. Check if they are float numbers", 405)
+		return
+	}
+
+	lng, err := strconv.ParseFloat(lngStr, 64)
+
+	if err != nil {
+		http.Error(rw, "Problem parsing lat,lng. Check if they are float numbers", 405)
+		return
+	}
 
 	var nearByGames []Game // to hold all games around the User
 
+	coord := []float64{lng, lat}
+
 	err = CGames.Find(
-		bson.M{"geometry": bson.M{"$nearSphere": bson.M{"$geometry": bson.M{"type": "Point", "coordinates": User.Coordinates},
+		bson.M{"geometry": bson.M{"$nearSphere": bson.M{"$geometry": bson.M{"type": "Point", "coordinates": coord},
 			"$maxDistance": 1000}}}).All(&nearByGames)
 
 	if err != nil {

@@ -1,4 +1,4 @@
-TAG = 1.1.4
+TAG = 1.1.11
 RC = rc
 PREFIX = gcr.io/boomer-1470064436690/boomer
 

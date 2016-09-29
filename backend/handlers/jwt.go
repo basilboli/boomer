@@ -20,11 +20,6 @@ func AuthHandler(h http.HandlerFunc) http.HandlerFunc {
 		fmt.Printf("Token maps to userid: %s\n", userid)
 		ctx := NewContextWithUserID(r.Context(), userid)
 
-		// cross-origin headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "origin, content-type, accept")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
-
 		h(w, r.WithContext(ctx))
 	}
 }
