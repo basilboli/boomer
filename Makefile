@@ -21,7 +21,7 @@ deploy-frontend:
 .PHONY: delete 
 delete:
 	kubectl delete --ignore-not-found deployments backend frontend
-	kubectl delete --ignore-not-found kubernetes/services backend frontend
+	kubectl delete --ignore-not-found services backend frontend
 	kubectl delete --ignore-not-found configmaps nginx-frontend-conf
 	kubectl delete --ignore-not-found secrets tls-certs
 	
@@ -41,4 +41,4 @@ run-mongo:
 
 .PHONY: delete-mongo
 delete-mongo:
-	kubectl delete --ignore-not-found -f mongo/spec.yaml
+	kubectl delete --ignore-not-found -f kubernetes/mongo/spec.yaml
