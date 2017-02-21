@@ -1,9 +1,9 @@
 package websockets
 
 import (
-	. "bitbucket.org/basilboli/boomer/backend/app"
-	"bitbucket.org/basilboli/boomer/backend/handlers"
 	"fmt"
+	. "github.com/basilboli/boomer/backend/app"
+	"github.com/basilboli/boomer/backend/handlers"
 	"golang.org/x/net/websocket"
 	"io"
 	"log"

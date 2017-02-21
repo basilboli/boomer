@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bitbucket.org/basilboli/boomer/backend/handlers"
-	"bitbucket.org/basilboli/boomer/backend/health"
-	"bitbucket.org/basilboli/boomer/backend/websockets"
 	"flag"
 	"fmt"
+	"github.com/basilboli/boomer/backend/handlers"
+	"github.com/basilboli/boomer/backend/health"
+	"github.com/basilboli/boomer/backend/websockets"
 	// "github.com/braintree/manners"
 	"github.com/rs/cors"
 	"golang.org/x/net/websocket"

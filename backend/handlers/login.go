@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	. "bitbucket.org/basilboli/boomer/backend/app"
-	. "bitbucket.org/basilboli/boomer/backend/db"
+	. "github.com/basilboli/boomer/backend/app"
+	. "github.com/basilboli/boomer/backend/db"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"

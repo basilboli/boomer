@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bitbucket.org/basilboli/boomer/server/api-rest/api"
 	"fmt"
+	"github.com/basilboli/boomer/server/api-rest/api"
 	"net/http"
 )
 

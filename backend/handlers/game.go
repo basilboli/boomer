@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	. "bitbucket.org/basilboli/boomer/backend/app"
-	. "bitbucket.org/basilboli/boomer/backend/db"
 	"context"
 	"encoding/json"
 	"fmt"
+	. "github.com/basilboli/boomer/backend/app"
+	. "github.com/basilboli/boomer/backend/db"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"log"

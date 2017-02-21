@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "bitbucket.org/basilboli/boomer/server/app"
+	// "github.com/basilboli/boomer/server/app"
 	"fmt"
 	"os"
 	"testing"

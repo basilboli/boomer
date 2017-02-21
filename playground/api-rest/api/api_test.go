@@ -1,8 +1,8 @@
 package api_test
 
 import (
-	"bitbucket.org/basilboli/boomer/server/api-rest/api"
 	"fmt"
+	"github.com/basilboli/boomer/server/api-rest/api"
 	"io"
 	"net/http"
 	"net/http/httptest"

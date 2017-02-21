@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: "gcr.io/boomer-1470064436690/nginx:0.0.14"
+          image: gcr.io/boomer-1470064436690/frontend
           volumeMounts:
             - name: "nginx-frontend-conf"
               mountPath: "/etc/nginx/conf.d"

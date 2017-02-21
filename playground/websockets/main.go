@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"bitbucket.org/basilboli/boomer/playground/websockets/ws"
+	"github.com/basilboli/boomer/playground/websockets/ws"
 )
 
 func main() {

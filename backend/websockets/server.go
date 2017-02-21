@@ -1,8 +1,8 @@
 package websockets
 
 import (
-	. "bitbucket.org/basilboli/boomer/backend/app"
 	"errors"
+	. "github.com/basilboli/boomer/backend/app"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/net/websocket"
 	"io"
