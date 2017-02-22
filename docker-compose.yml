@@ -71,7 +71,6 @@ services:
         environment:
             - LETSENCRYPT=true
             - LE_EMAIL=basilboli@gmail.com
-            - LE_FQDN=boomer.im
-
+            - LE_FQDN=boomer.im,api.boomer.im
             - SSL_CERT=le-crt.pem
             - SSL_KEY=le-key.pem       
