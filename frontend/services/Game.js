@@ -31,7 +31,7 @@ app.factory( 'GameService', function( $http, $q, $timeout, $rootScope, AppModel,
         initSocket: function() {
             var deferred = $q.defer();
 
-            this.socket = new WebSocket( "ws://boomer.im/api/events?access_token=" + AppModel.user.token );
+            this.socket = new WebSocket( "ws://api.boomer.im/events?access_token=" + AppModel.user.token );
 
             this.socket.onopen = function( event ) {
                 console.log( 'WebSocket opened' );
@@ -138,7 +138,7 @@ app.factory( 'GameService', function( $http, $q, $timeout, $rootScope, AppModel,
         checkSpot: function( spot ) {
             AppModel.loader.show = true;
 
-            return $http.post( 'http://boomer.im/api/spot/checkin', {
+            return $http.post( 'http://api.boomer.im/spot/checkin', {
                 "playerid": AppModel.user.playerid,
                 "spotid": spot.spotid
             } ).then(
