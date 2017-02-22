@@ -66,3 +66,12 @@ run-mongo:
 .PHONY: delete-mongo
 delete-mongo:
 	kubectl delete --ignore-not-found -f kubernetes/mongo/spec.yaml
+
+.PHONY: clean
+clean:
+	docker-compose stop
+	docker rm $(docker ps -a -q)
+	docker rmi basilboli/boomer:nginx
+	docker rmi basilboli/boomer
+	docker-compose build
+	docker-compose up -d
