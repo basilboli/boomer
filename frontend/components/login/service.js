@@ -3,7 +3,7 @@ app.factory( 'LoginService', function( $http, $q, $location, AppModel ) {
     return {
 
         login: function( email, password ) {
-            return $http.post( 'http://api.boomer.im/login', null, {
+            return $http.post( 'http://boomer.im/api/login', null, {
                 headers: {
                     "Authorization": "Basic " + btoa( email + ":" + password )
                 }

@@ -1,5 +1,6 @@
 TAG = 0.0.1
 PREFIX = gcr.io/boomer-1470064436690
+TIMESTAMP := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 
 .PHONY: all
 all: deploy
@@ -53,7 +54,9 @@ deploy-mongo:
 .PHONY: build-mobile
 build-mobile:	
 	cd frontend; cordova build android
+	gsutil cp frontend/platforms/android/build/outputs/apk/android-debug.apk gs://boomer_data/boomer-$(TIMESTAMP).apk
 	gsutil cp frontend/platforms/android/build/outputs/apk/android-debug.apk gs://boomer_data/boomer.apk
+	gsutil setacl public-read gs://boomer_data/boomer-$(TIMESTAMP).apk
 	gsutil setacl public-read gs://boomer_data/boomer.apk
 
 .PHONY: run-mongo

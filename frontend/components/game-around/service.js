@@ -3,7 +3,7 @@ app.factory( 'GameAroundService', function( $http, AppModel ) {
     return {
 
         getAroundGames: function() {
-            return $http.get( 'http://api.boomer.im/game/around', {
+            return $http.get( 'http://boomer.im/api/game/around', {
                 params: {
                     lat: AppModel.user.position.latitude,
                     lng: AppModel.user.position.longitude

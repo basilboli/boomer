@@ -1,6 +1,6 @@
 # API
 
-# api.boomer.im
+# boomer.im/api
 
 Note : every endpoint (excluding /signup and /login) is secured with json webtoken provided in the Authorization header using the Bearer schema. The content of the header should look like the following:
 
