@@ -12,14 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM nginx
+FROM basilboli:nginx-le
 
 MAINTAINER Vasyl Vaskul <vasyl@fifty-five.com>
 
 COPY www /usr/share/nginx/html
-
 RUN mkdir /usr/share/nginx/blog
-
 COPY blog /usr/share/nginx/blog
-
-CMD ["nginx", "-g", "daemon off;"]

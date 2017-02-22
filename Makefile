@@ -7,6 +7,12 @@ all: deploy
 .PHONY: deploy
 deploy: deploy-backend deploy-frontend
 
+.PHONY: redeploy
+redeploy:
+	kubectl delete --ignore-not-found deployments backend frontend
+	kubectl create --record=true -f kubernetes/deployments/frontend.yaml
+	kubectl create --record=true -f kubernetes/deployments/backend.yaml
+
 .PHONY: deploy-backend
 deploy-backend: build-backend
 	kubectl create --record=true -f kubernetes/deployments/backend.yaml
@@ -26,10 +32,10 @@ build-frontend:
 
 .PHONY: deploy-frontend
 deploy-frontend: build-frontend
-	kubectl delete --ignore-not-found configmaps nginx-frontend-conf	
-	kubectl create configmap nginx-frontend-conf --from-file kubernetes/nginx/frontend.conf
-	kubectl get configmaps nginx-frontend-conf -o yaml
-	kubectl create secret generic tls-certs --from-file kubernetes/tls/
+	# kubectl delete --ignore-not-found configmaps nginx-frontend-conf	
+	# kubectl create configmap nginx-frontend-conf --from-file kubernetes/nginx/frontend.conf
+	# kubectl get configmaps nginx-frontend-conf -o yaml
+	# kubectl create secret generic tls-certs --from-file kubernetes/tls/
 	kubectl create --record=true -f kubernetes/deployments/frontend.yaml
 	kubectl create --record=true -f kubernetes/services/frontend.yaml
 
@@ -37,8 +43,8 @@ deploy-frontend: build-frontend
 delete:
 	kubectl delete --ignore-not-found deployments backend frontend
 	kubectl delete --ignore-not-found services backend frontend
-	kubectl delete --ignore-not-found configmaps nginx-frontend-conf
-	kubectl delete --ignore-not-found secrets tls-certs
+	# kubectl delete --ignore-not-found configmaps nginx-frontend-conf
+	# kubectl delete --ignore-not-found secrets tls-certs
 	
 .PHONY: deploy-mongo
 deploy-mongo:

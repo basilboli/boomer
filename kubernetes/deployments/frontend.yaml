@@ -15,16 +15,15 @@ spec:
           image: gcr.io/boomer-1470064436690/frontend
           volumeMounts:
             - name: "nginx-frontend-conf"
-              mountPath: "/etc/nginx/conf.d"
-            - name: "tls-certs"
-              mountPath: "/etc/tls"
+              mountPath: "/etc/nginx/service.conf"
+            - name: "mongo-persistent-storage"
+              mountPath: "/etc/ssl"
       volumes:
-        - name: "tls-certs"
-          secret:
-            secretName: "tls-certs"
         - name: "nginx-frontend-conf"
-          configMap:
-            name: "nginx-frontend-conf"
-            items:
-              - key: "frontend.conf"
-                path: "frontend.conf"
+          hostPath:
+            path: ./etc/frontend.conf
+        - name: mongo-persistent-storage
+      # This GCE PD must already exist.
+          gcePersistentDisk:
+            pdName: mongo-disk
+            fsType: ext4          

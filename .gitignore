@@ -4,3 +4,4 @@ client/platforms/android/build/
 client/platforms/android/.gradle/
 platforms/android/CordovaLib/build
 Godeps/
+dump

@@ -1,0 +1,77 @@
+version: '2'
+
+services:    
+    db:
+        image: mongo
+        container_name: mongo-master
+        hostname: mongo-master
+        restart: always
+
+        logging:
+          driver: json-file
+          options:
+              max-size: "10m"
+              max-file: "5"
+
+        volumes:
+            - ./data/db:/data/db
+
+        environment:
+           - FOO=bar 
+
+    boomer:
+        build: .
+        image: basilboli/boomer:latest
+        container_name: boomer
+        hostname: boomer
+        restart: always
+
+        logging:
+          driver: json-file
+          options:
+              max-size: "10m"
+              max-file: "5"
+        
+        depends_on:
+            - db            
+
+        volumes:
+            - ./var:/data
+
+        environment:
+           - FOO=bar
+           - MONGO_MASTER_SERVICE_HOST=mongo-master
+
+    nginx:
+        build: nginx
+        image: basilboli/boomer:nginx
+        hostname: nginx
+        restart: always
+        container_name: nginx
+
+        logging:
+          driver: json-file
+          options:
+              max-size: "10m"
+              max-file: "5"
+
+        depends_on:
+            - boomer
+
+        volumes:
+            - ./etc/ssl:/etc/nginx/ssl
+
+        volumes_from:
+            - boomer
+
+        ports:
+            - "80:80"
+            - "443:443"
+
+        environment:
+            - LETSENCRYPT=true
+            - LE_EMAIL=basilboli@boomer.im
+            - LE_FQDN=boomer.im
+
+            - SSL_CERT=boomer-crt.pem
+            - SSL_KEY=boomer-key.pem       
