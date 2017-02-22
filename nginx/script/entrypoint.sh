@@ -2,7 +2,7 @@
 echo "start nginx"
 
 #setup ssl keys
-echo "ssl_key=${SSL_KEY:=boomer-key.pem}, ssl_cert=${SSL_CERT:=boomer-crt.pem}"
+echo "ssl_key=${SSL_KEY:=le-key.pem}, ssl_cert=${SSL_CERT:=le-crt.pem}"
 SSL_KEY=/etc/nginx/ssl/${SSL_KEY}
 SSL_CERT=/etc/nginx/ssl/${SSL_CERT}
 sed -i "s|BOOMER_KEY|${SSL_KEY}|g" /etc/nginx/conf.d/boomer.conf
