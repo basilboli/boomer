@@ -70,7 +70,8 @@ delete-mongo:
 .PHONY: clean
 clean:
 	docker-compose stop
-	docker rm $(docker ps -a -q)
+	$(eval CONTAINERS=$(shell docker ps -a -q))
+	docker rm $(CONTAINERS)	
 	docker rmi basilboli/boomer:nginx
 	docker rmi basilboli/boomer
 	docker-compose build
