@@ -5,3 +5,6 @@ client/platforms/android/.gradle/
 platforms/android/CordovaLib/build
 Godeps/
 dump
+var/
+data/
+etc/
