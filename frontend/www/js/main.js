@@ -90,7 +90,7 @@ app.factory( 'GameService', function( $http, $q, $timeout, $rootScope, AppModel,
         initSocket: function() {
             var deferred = $q.defer();
 
-            this.socket = new WebSocket( "ws://api.boomer.im/events?access_token=" + AppModel.user.token );
+            this.socket = new WebSocket( "wss://api.boomer.im/events?access_token=" + AppModel.user.token );
 
             this.socket.onopen = function( event ) {
                 console.log( 'WebSocket opened' );
