@@ -138,7 +138,7 @@ app.factory( 'GameService', function( $http, $q, $timeout, $rootScope, AppModel,
         checkSpot: function( spot ) {
             AppModel.loader.show = true;
 
-            return $http.post( 'http://api.boomer.im/spot/checkin', {
+            return $http.post( 'https://api.boomer.im/spot/checkin', {
                 "playerid": AppModel.user.playerid,
                 "spotid": spot.spotid
             } ).then(

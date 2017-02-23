@@ -3,7 +3,7 @@ app.factory( 'SingleGameService', function( $http, AppModel ) {
     return {
 
         startGame: function() {
-            return $http.post( 'http://api.boomer.im/game/start', null, {
+            return $http.post( 'https://api.boomer.im/game/start', null, {
                 params: {
                     id: AppModel.game.gameid
                 }
@@ -15,7 +15,7 @@ app.factory( 'SingleGameService', function( $http, AppModel ) {
         },
 
         stopGame: function() {
-            return $http.post( 'http://api.boomer.im/game/stop', null, {
+            return $http.post( 'https://api.boomer.im/game/stop', null, {
                 params: {
                     id: AppModel.game.gameid
                 }

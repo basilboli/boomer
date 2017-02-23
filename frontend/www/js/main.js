@@ -197,7 +197,7 @@ app.factory( 'GameService', function( $http, $q, $timeout, $rootScope, AppModel,
         checkSpot: function( spot ) {
             AppModel.loader.show = true;
 
-            return $http.post( 'http://api.boomer.im/spot/checkin', {
+            return $http.post( 'https://api.boomer.im/spot/checkin', {
                 "playerid": AppModel.user.playerid,
                 "spotid": spot.spotid
             } ).then(
@@ -280,7 +280,7 @@ app.factory( 'GameAroundService', function( $http, AppModel ) {
     return {
 
         getAroundGames: function() {
-            return $http.get( 'http://api.boomer.im/game/around', {
+            return $http.get( 'https://api.boomer.im/game/around', {
                 params: {
                     lat: AppModel.user.position.latitude,
                     lng: AppModel.user.position.longitude
@@ -369,7 +369,7 @@ app.factory( 'LoginService', function( $http, $q, $location, AppModel ) {
     return {
 
         login: function( email, password ) {
-            return $http.post( 'http://api.boomer.im/login', null, {
+            return $http.post( 'https://api.boomer.im/login', null, {
                 headers: {
                     "Authorization": "Basic " + btoa( email + ":" + password )
                 }
@@ -690,7 +690,7 @@ app.factory( 'SingleGameService', function( $http, AppModel ) {
     return {
 
         startGame: function() {
-            return $http.post( 'http://api.boomer.im/game/start', null, {
+            return $http.post( 'https://api.boomer.im/game/start', null, {
                 params: {
                     id: AppModel.game.gameid
                 }
@@ -702,7 +702,7 @@ app.factory( 'SingleGameService', function( $http, AppModel ) {
         },
 
         stopGame: function() {
-            return $http.post( 'http://api.boomer.im/game/stop', null, {
+            return $http.post( 'https://api.boomer.im/game/stop', null, {
                 params: {
                     id: AppModel.game.gameid
                 }
